@@ -188,7 +188,7 @@ const setupRegistration = () => {
   $('btn-back-1').onclick = () => goToStep(1);
   $('btn-back-2').onclick = () => goToStep(2);
 
-  $('btn-continue-2').onclick = async () => {
+  $('btn-continue-2').onclick = () => {
     const name = $('userNameInput').value.trim();
     const phone = $('membershipInput').value.trim();
 
@@ -198,6 +198,13 @@ const setupRegistration = () => {
     }
 
     $('codeErrorMsg').classList.remove('visible');
+    goToStep(3); // Go to Rules Page
+  };
+
+  $('startBtn').onclick = async () => {
+    const name = $('userNameInput').value.trim();
+    const phone = $('membershipInput').value.trim();
+
     $('registration-overlay').classList.add('hidden');
     $('ar-status').style.display = 'flex';
     $('menu-btn').style.display = 'flex';
