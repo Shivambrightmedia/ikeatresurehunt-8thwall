@@ -308,7 +308,7 @@ body {
 
 .reg-container {
   background: white;
-  padding: 40px 25px;
+  padding: 20px 10px;
   border-radius: 4px;
   width: 92%;
   max-width: 380px;
@@ -338,12 +338,12 @@ body {
 
 .member-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px 10px;
   border: 2px solid var(--primary);
   border-radius: 30px;
   background: transparent;
   color: var(--primary);
-  font-size: 1em;
+  font-size: 0.9em;
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 12px;
@@ -431,7 +431,7 @@ body {
   font-size: 0.95em;
   line-height: 1.8;
   margin-bottom: 25px;
-  padding-left: 20px;
+  padding-left: 15px;
 }
 
 .rules-list li {
