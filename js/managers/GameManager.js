@@ -2,14 +2,15 @@ class GameManager {
   constructor(cluePool, databaseService) {
     this.cluePool = cluePool;
     this.db = databaseService;
-
-    this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
+    
+    this.clueOrder = [];
     this.round = 0;
     this.playerName = '';
     this.playerPhone = '';
     this.sessionId = null;
+    this.startedAt = null;
     this.isTransitioning = false;
-
+    
     this.onClueUpdate = null;
     this.onSuccess = null;
     this.onGameComplete = null;
@@ -18,9 +19,38 @@ class GameManager {
   async start(name, phone) {
     this.playerName = name;
     this.playerPhone = phone;
-    const session = await this.db.savePlayer(name, phone);
-    if (session) this.sessionId = session.id;
 
+    // 1. Check for existing session (Resume)
+    const existing = await this.db.getSessionByPhone(phone);
+    
+    if (existing && existing.status !== 'completed') {
+      // Resume existing game
+      this.sessionId = existing.id;
+      this.playerName = existing.player_name || name;
+      this.round = existing.current_clue_index || 0;
+      this.startedAt = new Date(existing.started_at);
+      
+      // Load assigned clues from DB
+      if (existing.assigned_clues) {
+        this.clueOrder = existing.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id));
+      } else {
+        this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
+      }
+    } else {
+      // Start fresh
+      this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
+      const clueIds = this.clueOrder.map(c => c.id);
+      
+      const session = await this.db.savePlayer(name, phone, clueIds);
+      if (session) {
+        this.sessionId = session.id;
+        this.startedAt = new Date(session.started_at);
+      } else {
+        this.startedAt = new Date(); // Fallback
+      }
+      this.round = 0;
+    }
+    
     this.nextRound();
   }
 
@@ -37,27 +67,45 @@ class GameManager {
     this.isTransitioning = false;
   }
 
-  handleTargetFound(targetName) {
+  async handleTargetFound(targetName) {
     if (this.isTransitioning) return;
-
+    
     const currentClue = this.clueOrder[this.round];
     if (targetName === currentClue.target) {
       this.isTransitioning = true;
       if (this.onSuccess) this.onSuccess();
+      
+      // Update DB progress
+      if (this.sessionId) {
+        await this.db.updateProgress(this.sessionId, { 
+          current_clue_index: this.round + 1,
+          last_activity: new Date().toISOString()
+        });
+      }
 
       setTimeout(() => {
         this.round++;
         this.nextRound();
-      }, 2500); // Wait for success animation
+      }, 2500);
     }
   }
 
   async completeGame() {
+    let finalTimeStr = '';
+    if (this.startedAt) {
+      const now = new Date();
+      const diffMs = now - this.startedAt;
+      const mins = Math.floor(diffMs / 60000);
+      const secs = Math.floor((diffMs % 60000) / 1000);
+      finalTimeStr = `${mins}m ${secs}s`;
+    }
+
     if (this.sessionId) {
       await this.db.markCompleted(this.sessionId);
     }
+
     if (this.onGameComplete) {
-      this.onGameComplete(this.playerName);
+      this.onGameComplete(this.playerName, finalTimeStr);
     }
   }
 

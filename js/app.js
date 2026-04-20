@@ -25,7 +25,7 @@ game.onSuccess = () => {
   $('ar-status').classList.add('found');
   $('status-text').innerText = `✅ TARGET FOUND!`;
   $('success-overlay').classList.add('visible');
-  
+
   if (window.confetti) {
     confetti({ particleCount: 120, spread: 80, origin: { y: 0.3 } });
   }
@@ -35,12 +35,18 @@ game.onSuccess = () => {
   }, 2000);
 };
 
-game.onGameComplete = (name) => {
+game.onGameComplete = (name, timeTaken) => {
   $('clue-panel').classList.remove('visible');
   $('ar-status').style.display = 'none';
   $('menu-btn').style.display = 'none';
   $('reward-screen').classList.add('visible');
   $('reward-player-name').innerText = `Well done, ${name}!`;
+
+  // Custom message with time
+  const rewardMsg = document.querySelector('#reward-screen p');
+  if (rewardMsg) {
+    rewardMsg.innerHTML = `You completed the hunt in <strong>${timeTaken}</strong>!<br>Show this to a staff member.`;
+  }
 
   if (window.confetti) {
     const end = Date.now() + 3000;
@@ -153,7 +159,7 @@ const setupRegistration = () => {
     $('menu-btn').style.display = 'flex';
     $('menu-player-name').innerText = name;
     $('menu-player-phone').innerText = phone;
-    
+
     // Start Game & AR
     await game.start(name, phone);
     startAR();
@@ -181,11 +187,11 @@ const startAR = () => {
     XR8.run({ canvas: $('camerafeed') });
   };
 
-  window.XR8 
+  window.XR8
     ? (window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded))
     : window.addEventListener('xrloaded', () => {
-        window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded);
-      });
+      window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded);
+    });
 };
 
 // ---- Init ----
