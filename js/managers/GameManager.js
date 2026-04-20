@@ -28,7 +28,13 @@ class GameManager {
 
     // 2. Check for completion lockout
     if (codeRecord && codeRecord.status === 'completed') {
-      const sess = await this.db.getSession(phone);
+      const { data, error } = await this.db.client
+        .from('sessions')
+        .select('*')
+        .eq('access_code', phone)
+        .maybeSingle();
+      
+      const sess = error ? null : data;
       this.handleLockedSession(sess, name);
       return;
     }
@@ -40,8 +46,13 @@ class GameManager {
       session = await this.db.createSession(phone, clueIds);
     }
 
+    if (!session) {
+      console.error('Failed to create/fetch session');
+      return;
+    }
+
     // 4. Load State
-    this.playerName = codeRecord.user_name || name;
+    this.playerName = codeRecord ? (codeRecord.user_name || name) : name;
     this.sessionId = session.id;
     this.round = session.current_clue_index || 0;
     this.startedAt = new Date(session.started_at);

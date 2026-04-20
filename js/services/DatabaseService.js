@@ -11,9 +11,9 @@ class DatabaseService {
         .from('access_codes')
         .select('*')
         .eq('code', code)
-        .single();
+        .maybeSingle();
       
-      if (error) throw error;
+      if (error) return null;
       return data;
     } catch (err) {
       console.error('Code validation error:', err);
