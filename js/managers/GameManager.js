@@ -2,7 +2,7 @@ class GameManager {
   constructor(cluePool, databaseService) {
     this.cluePool = cluePool;
     this.db = databaseService;
-    
+
     this.clueOrder = [];
     this.round = 0;
     this.playerName = '';
@@ -10,7 +10,7 @@ class GameManager {
     this.sessionId = null;
     this.startedAt = null;
     this.isTransitioning = false;
-    
+
     this.onClueUpdate = null;
     this.onSuccess = null;
     this.onGameComplete = null;
@@ -45,7 +45,7 @@ class GameManager {
     this.sessionId = session.id;
     this.round = session.current_clue_index || 0;
     this.startedAt = new Date(session.started_at);
-    
+
     if (session.assigned_clues && session.assigned_clues.length > 0) {
       this.clueOrder = session.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id)).filter(c => c);
     }
@@ -53,12 +53,14 @@ class GameManager {
     if (this.clueOrder.length === 0) {
       this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
     }
-    
+
     this.nextRound();
   }
 
   handleLockedSession(session, name) {
     let finalTimeStr = '';
+    const rewards = session?.rewards_earned || [];
+    
     if (session && session.started_at && session.completed_at) {
       const diffMs = new Date(session.completed_at) - new Date(session.started_at);
       const mins = Math.floor(diffMs / 60000);
@@ -67,7 +69,7 @@ class GameManager {
     }
     
     if (this.onGameComplete) {
-      this.onGameComplete(name, finalTimeStr);
+      this.onGameComplete(name, finalTimeStr, rewards);
     }
   }
 
@@ -86,14 +88,14 @@ class GameManager {
 
   async handleTargetFound(targetName) {
     if (this.isTransitioning) return;
-    
+
     const currentClue = this.clueOrder[this.round];
     if (targetName === currentClue.target) {
       this.isTransitioning = true;
       if (this.onSuccess) this.onSuccess();
-      
+
       const newRound = this.round + 1;
-      await this.db.updateProgress(this.accessCode, { 
+      await this.db.updateProgress(this.accessCode, {
         current_clue_index: newRound,
         completed_clues: this.clueOrder.slice(0, newRound).map(c => c.id)
       });
@@ -107,6 +109,8 @@ class GameManager {
 
   async completeGame() {
     let finalTimeStr = '';
+    let rewards = [];
+    
     if (this.startedAt) {
       const now = new Date();
       const diffMs = now - this.startedAt;
@@ -115,13 +119,26 @@ class GameManager {
       finalTimeStr = `${mins}m ${secs}s`;
     }
 
-    await this.db.updateProgress(this.accessCode, { 
+    // Generate Final Reward Barcode
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const barcode = `IKEA-${timestamp}-${random}`;
+    
+    rewards = [{
+      id: 'reward_final',
+      type: 'final',
+      barcode: barcode,
+      unlocked_at: new Date().toISOString()
+    }];
+
+    await this.db.updateProgress(this.accessCode, {
       status: 'completed',
-      completed_at: new Date().toISOString()
+      completed_at: new Date().toISOString(),
+      rewards_earned: rewards
     });
 
     if (this.onGameComplete) {
-      this.onGameComplete(this.playerName, finalTimeStr);
+      this.onGameComplete(this.playerName, finalTimeStr, rewards);
     }
   }
 

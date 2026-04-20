@@ -35,7 +35,7 @@ game.onSuccess = () => {
   }, 2000);
 };
 
-game.onGameComplete = (name, timeTaken) => {
+game.onGameComplete = (name, timeTaken, rewards) => {
   $('registration-overlay').classList.add('hidden'); // Ensure reg is hidden
   $('clue-panel').classList.remove('visible');
   $('ar-status').style.display = 'none';
@@ -49,6 +49,9 @@ game.onGameComplete = (name, timeTaken) => {
     rewardMsg.innerHTML = `You completed the hunt in <strong>${timeTaken}</strong>!<br>Show this to a staff member.`;
   }
 
+  // Update profile menu rewards
+  updateMenuRewards(rewards);
+
   if (window.confetti) {
     const end = Date.now() + 3000;
     const colors = ['#0051ba', '#ffda1a', '#ff6b6b', '#00ff88'];
@@ -59,6 +62,46 @@ game.onGameComplete = (name, timeTaken) => {
     };
     frame();
   }
+};
+
+// ---- Profile / Rewards UI ----
+const updateMenuRewards = (rewards) => {
+  const list = $('menu-reward-list');
+  if (!rewards || rewards.length === 0) {
+    list.innerHTML = '<p style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>';
+    return;
+  }
+
+  list.innerHTML = rewards.map((r, i) => `
+    <div class="menu-reward-item" id="reward-${i}">
+      <span class="reward-type">${r.type === 'final' ? '🏆 FINAL REWARD' : '🎁 MILESTONE REWARD'}</span>
+      <div class="reward-reveal-container">
+        <span class="reward-barcode" id="barcode-${i}" style="display:none; font-family:monospace; background:#eee; padding:5px; border-radius:4px; font-weight:bold; margin:5px 0; text-align:center;">${r.barcode}</span>
+        <button class="redeem-btn" id="redeem-${i}" onclick="redeemReward('${i}')" style="background:var(--ikea-blue); color:white; border:none; padding:8px; border-radius:4px; width:100%; font-weight:bold; cursor:pointer;">REDEEM</button>
+      </div>
+    </div>
+  `).join('');
+};
+
+window.redeemReward = (index) => {
+  const barcode = $(`barcode-${index}`);
+  const btn = $(`redeem-${index}`);
+
+  barcode.style.display = 'block';
+  btn.style.display = 'none';
+
+  let timeLeft = 15;
+  const timer = setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      barcode.style.display = 'none';
+      btn.style.display = 'block';
+      btn.innerText = 'REDEEM';
+    } else {
+      btn.innerText = `REDEEMING... (${timeLeft}s)`;
+    }
+  }, 1000);
 };
 
 // ---- Panel Toggle ----
