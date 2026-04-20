@@ -308,10 +308,10 @@ body {
 
 .reg-container {
   background: white;
-  padding: 20px 10px;
+  padding: 25px 20px;
   border-radius: 4px;
-  width: 92%;
-  max-width: 380px;
+  width: 90%;
+  max-width: 360px;
   text-align: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   margin-bottom: 200px;
@@ -343,7 +343,7 @@ body {
   border-radius: 30px;
   background: transparent;
   color: var(--primary);
-  font-size: 0.9em;
+  font-size: 0.85em;
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 12px;
