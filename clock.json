@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/clock_luminance.jpg",
+  "metadata": null,
+  "name": "clock",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 0,
+    "width": 1200,
+    "height": 1600,
+    "isRotated": false,
+    "originalWidth": 1200,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "clock_original.jpg",
+    "croppedImage": "clock_cropped.jpg",
+    "thumbnailImage": "clock_thumbnail.jpg",
+    "luminanceImage": "clock_luminance.jpg"
+  },
+  "created": 1776665014813,
+  "updated": 1776665014813
+}

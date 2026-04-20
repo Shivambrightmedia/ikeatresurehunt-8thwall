@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/osama_luminance.jpg",
+  "metadata": null,
+  "name": "osama",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 0,
+    "width": 1200,
+    "height": 1600,
+    "isRotated": false,
+    "originalWidth": 1200,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "osama_original.jpg",
+    "croppedImage": "osama_cropped.jpg",
+    "thumbnailImage": "osama_thumbnail.jpg",
+    "luminanceImage": "osama_luminance.jpg"
+  },
+  "created": 1776665063238,
+  "updated": 1776665063238
+}
