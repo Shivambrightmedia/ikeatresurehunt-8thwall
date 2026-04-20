@@ -3,72 +3,116 @@ class DatabaseService {
     this.client = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
   }
 
-  async getSessionByPhone(phone) {
+  // --- ACCESS CODES ---
+  
+  async validateAccessCode(code) {
+    try {
+      const { data, error } = await this.client
+        .from('access_codes')
+        .select('*')
+        .eq('code', code)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('Code validation error:', err);
+      return null;
+    }
+  }
+
+  async registerAccessCode(code, userName) {
+    try {
+      const { data, error } = await this.client
+        .from('access_codes')
+        .insert([{ 
+          code, 
+          user_name: userName, 
+          status: 'active',
+          activated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error('Code registration error:', err);
+      return null;
+    }
+  }
+
+  // --- GAME SESSIONS ---
+
+  async getSession(accessCode) {
     try {
       const { data, error } = await this.client
         .from('game_sessions')
         .select('*')
-        .eq('player_phone', phone)
-        .order('started_at', { ascending: false })
-        .limit(1)
+        .eq('access_code', accessCode)
         .maybeSingle();
 
       if (error) throw error;
       return data;
     } catch (err) {
-      console.error('Supabase Fetch Error:', err);
+      console.error('Session fetch error:', err);
       return null;
     }
   }
 
-  async savePlayer(name, phone, assignedClues) {
+  async createSession(accessCode, assignedClues) {
     try {
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 24);
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24h
+
+      const session = {
+        access_code: accessCode,
+        current_clue_index: 0,
+        assigned_clues: assignedClues,
+        completed_clues: [],
+        rewards_earned: [],
+        status: 'active',
+        started_at: now.toISOString(),
+        expires_at: expiresAt.toISOString(),
+        last_activity: now.toISOString()
+      };
 
       const { data, error } = await this.client
         .from('game_sessions')
-        .insert([{ 
-          player_name: name,
-          player_phone: phone, 
-          status: 'started',
-          assigned_clues: assignedClues, // Array of clue IDs
-          current_clue_index: 0,
-          expires_at: expiresAt.toISOString(),
-          started_at: new Date().toISOString()
-        }])
-        .select();
+        .insert([session])
+        .select()
+        .single();
 
       if (error) throw error;
-      return data[0];
+      return data;
     } catch (err) {
-      console.error('Supabase Save Error:', err);
+      console.error('Session creation error:', err);
       return null;
     }
   }
 
-  async updateProgress(sessionId, updates) {
+  async updateProgress(accessCode, updates) {
     try {
       await this.client
         .from('game_sessions')
-        .update(updates)
-        .eq('id', sessionId);
-    } catch (err) {
-      console.error('Supabase Update Error:', err);
-    }
-  }
-
-  async markCompleted(sessionId) {
-    try {
-      await this.client
-        .from('game_sessions')
-        .update({ 
-          status: 'completed', 
-          completed_at: new Date().toISOString() 
+        .update({
+          ...updates,
+          last_activity: new Date().toISOString()
         })
-        .eq('id', sessionId);
+        .eq('access_code', accessCode);
+
+      // Also update access_codes table if status changes
+      if (updates.status) {
+        const codeUpdates = { status: updates.status };
+        if (updates.status === 'completed') codeUpdates.completed_at = new Date().toISOString();
+        
+        await this.client
+            .from('access_codes')
+            .update(codeUpdates)
+            .eq('code', accessCode);
+      }
     } catch (err) {
-      console.error('Supabase Completion Error:', err);
+      console.error('Update progress error:', err);
     }
   }
 }

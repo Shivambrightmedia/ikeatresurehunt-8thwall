@@ -6,7 +6,7 @@ class GameManager {
     this.clueOrder = [];
     this.round = 0;
     this.playerName = '';
-    this.playerPhone = '';
+    this.accessCode = ''; // Use phone number as access code
     this.sessionId = null;
     this.startedAt = null;
     this.isTransitioning = false;
@@ -18,64 +18,57 @@ class GameManager {
 
   async start(name, phone) {
     this.playerName = name;
-    this.playerPhone = phone;
+    this.accessCode = phone;
 
-    // 1. Check for existing session (Resume)
-    const existing = await this.db.getSessionByPhone(phone);
+    // 1. Validate / Get Access Code Record
+    let codeRecord = await this.db.validateAccessCode(phone);
+    if (!codeRecord) {
+      codeRecord = await this.db.registerAccessCode(phone, name);
+    }
+
+    // 2. Check for completion lockout
+    if (codeRecord && codeRecord.status === 'completed') {
+      const sess = await this.db.getSession(phone);
+      this.handleLockedSession(sess, name);
+      return;
+    }
+
+    // 3. Get / Create Session
+    let session = await this.db.getSession(phone);
+    if (!session) {
+      const clueIds = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES).map(c => c.id);
+      session = await this.db.createSession(phone, clueIds);
+    }
+
+    // 4. Load State
+    this.playerName = codeRecord.user_name || name;
+    this.sessionId = session.id;
+    this.round = session.current_clue_index || 0;
+    this.startedAt = new Date(session.started_at);
     
-    if (existing) {
-      if (existing.status === 'completed') {
-        // Already finished - show reward screen
-        this.sessionId = existing.id;
-        this.playerName = existing.player_name || name;
-        this.startedAt = new Date(existing.started_at);
-        
-        let finalTimeStr = '';
-        if (existing.completed_at) {
-          const start = new Date(existing.started_at);
-          const end = new Date(existing.completed_at);
-          const diffMs = end - start;
-          const mins = Math.floor(diffMs / 60000);
-          const secs = Math.floor((diffMs % 60000) / 1000);
-          finalTimeStr = `${mins}m ${secs}s`;
-        }
-        
-        if (this.onGameComplete) {
-          this.onGameComplete(this.playerName, finalTimeStr);
-        }
-        return;
-      }
+    if (session.assigned_clues && session.assigned_clues.length > 0) {
+      this.clueOrder = session.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id)).filter(c => c);
+    }
 
-      // Resume existing game
-      this.sessionId = existing.id;
-      this.playerName = existing.player_name || name;
-      this.round = existing.current_clue_index || 0;
-      this.startedAt = new Date(existing.started_at);
-      
-      // Load assigned clues from DB
-      if (existing.assigned_clues && existing.assigned_clues.length > 0) {
-        this.clueOrder = existing.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id)).filter(c => c);
-      }
-      
-      if (this.clueOrder.length === 0) {
-        this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
-      }
-    } else {
-      // Start fresh
+    if (this.clueOrder.length === 0) {
       this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
-      const clueIds = this.clueOrder.map(c => c.id);
-      
-      const session = await this.db.savePlayer(name, phone, clueIds);
-      if (session) {
-        this.sessionId = session.id;
-        this.startedAt = new Date(session.started_at);
-      } else {
-        this.startedAt = new Date(); // Fallback
-      }
-      this.round = 0;
     }
     
     this.nextRound();
+  }
+
+  handleLockedSession(session, name) {
+    let finalTimeStr = '';
+    if (session && session.started_at && session.completed_at) {
+      const diffMs = new Date(session.completed_at) - new Date(session.started_at);
+      const mins = Math.floor(diffMs / 60000);
+      const secs = Math.floor((diffMs % 60000) / 1000);
+      finalTimeStr = `${mins}m ${secs}s`;
+    }
+    
+    if (this.onGameComplete) {
+      this.onGameComplete(name, finalTimeStr);
+    }
   }
 
   nextRound() {
@@ -99,16 +92,14 @@ class GameManager {
       this.isTransitioning = true;
       if (this.onSuccess) this.onSuccess();
       
-      // Update DB progress
-      if (this.sessionId) {
-        await this.db.updateProgress(this.sessionId, { 
-          current_clue_index: this.round + 1,
-          last_activity: new Date().toISOString()
-        });
-      }
+      const newRound = this.round + 1;
+      await this.db.updateProgress(this.accessCode, { 
+        current_clue_index: newRound,
+        completed_clues: this.clueOrder.slice(0, newRound).map(c => c.id)
+      });
 
       setTimeout(() => {
-        this.round++;
+        this.round = newRound;
         this.nextRound();
       }, 2500);
     }
@@ -124,9 +115,10 @@ class GameManager {
       finalTimeStr = `${mins}m ${secs}s`;
     }
 
-    if (this.sessionId) {
-      await this.db.markCompleted(this.sessionId);
-    }
+    await this.db.updateProgress(this.accessCode, { 
+      status: 'completed',
+      completed_at: new Date().toISOString()
+    });
 
     if (this.onGameComplete) {
       this.onGameComplete(this.playerName, finalTimeStr);
