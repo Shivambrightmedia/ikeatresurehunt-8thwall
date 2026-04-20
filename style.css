@@ -337,16 +337,17 @@ body {
 }
 
 .member-btn {
-  width: 100%;
-  padding: 12px 10px;
+  width: 85%;
+  padding: 10px;
   border: 2px solid var(--primary);
   border-radius: 30px;
   background: transparent;
   color: var(--primary);
-  font-size: 0.85em;
+  font-size: 0.8em;
   font-weight: bold;
   cursor: pointer;
-  margin-bottom: 12px;
+  margin: 0 auto 12px auto;
+  display: block;
   transition: all 0.2s;
   font-family: 'Outfit', sans-serif;
 }
