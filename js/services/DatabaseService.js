@@ -5,12 +5,16 @@ class DatabaseService {
 
   async savePlayer(name, phone) {
     try {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // 24h expiry
+
       const { data, error } = await this.client
         .from('game_sessions')
         .insert([{ 
-          player_name: name, 
+          player_name: name, // User needs to add these columns to table
           player_phone: phone, 
           status: 'started',
+          expires_at: expiresAt.toISOString(),
           started_at: new Date().toISOString()
         }])
         .select();
