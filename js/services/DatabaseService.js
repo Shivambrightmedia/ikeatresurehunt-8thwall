@@ -60,13 +60,14 @@ class DatabaseService {
     }
   }
 
-  async createSession(accessCode, assignedClues) {
+  async createSession(accessCode, assignedClues, playerName) {
     try {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24h
 
       const session = {
         access_code: accessCode,
+        player_name: playerName, // Add this column to game_sessions table
         current_clue_index: 0,
         assigned_clues: assignedClues,
         completed_clues: [],

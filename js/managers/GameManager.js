@@ -43,7 +43,7 @@ class GameManager {
     let session = await this.db.getSession(phone);
     if (!session) {
       const clueIds = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES).map(c => c.id);
-      session = await this.db.createSession(phone, clueIds);
+      session = await this.db.createSession(phone, clueIds, name); // Pass name
     }
 
     if (!session) {
