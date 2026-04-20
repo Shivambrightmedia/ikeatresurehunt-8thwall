@@ -1,21 +1,21 @@
-:root {
-  --primary: #0051ba;
-  --accent: #ffda1a;
-}
-
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
-  background: #000;
+  margin: 0;
   overflow: hidden;
-  color: #fff;
+  font-family: 'Verdana', sans-serif;
+  /* IKEA-ish font */
 }
 
+/* Branding Colors */
+:root {
+  --ikea-blue: #0051ba;
+  --ikea-yellow: #ffda1a;
+}
+
+/* AR Scene - Full screen background */
 #camerafeed {
   position: fixed;
   top: 0;
@@ -25,95 +25,167 @@ body {
   z-index: 1;
 }
 
-/* Status Indicator */
+/* Status indicator */
 #ar-status {
   position: fixed;
-  top: 15px;
-  left: 15px;
+  top: 70px;
+  left: 10px;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
+  background: transparent;
   color: white;
   padding: 10px 15px;
-  border-radius: 25px;
+  border-radius: 8px;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  backdrop-filter: blur(8px);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   transition: all 0.3s ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  display: none; /* Show after registration */
+  align-items: center;
 }
 
 #ar-status.found {
-  background: var(--primary);
-  color: var(--accent);
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
   font-weight: bold;
 }
 
 .status-dot {
-  width: 10px;
-  height: 10px;
-  background: #28a745;
+  width: 12px;
+  height: 12px;
+  background-color: #28a745;
   border-radius: 50%;
   display: inline-block;
   margin-right: 8px;
   box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.status-dot.red {
+  background-color: #dc3545;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
 }
 
 .status-dot.pulse {
-  animation: pulseDot 1.5s infinite;
+  animation: pulse-dot 1.5s infinite;
 }
 
-@keyframes pulseDot {
-
-  0%,
-  100% {
-    transform: scale(0.9);
-    opacity: 0.7;
-  }
-
-  50% {
-    transform: scale(1.3);
-    opacity: 1;
-  }
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
 }
 
-/* Success Overlay */
-#success-overlay {
+/* Registration Overlay */
+#registration-overlay {
   position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--accent);
-  padding: 20px 40px;
-  border-radius: 50px;
-  text-align: center;
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 1.5em;
-  z-index: 1800;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--ikea-yellow);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+#registration-overlay.hidden {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
+  display: none;
 }
 
-#success-overlay.visible {
+.reg-container {
+  background: white;
+  padding: 40px;
+  border-radius: 4px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  margin-bottom: 200px;
+}
+
+.reg-title {
+  color: var(--ikea-blue);
+  font-size: 1.8em;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.input-group {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 0;
+  font-size: 1.1em;
+  outline: none;
+  text-align: center;
+}
+
+.input-group input:focus {
+  border-color: var(--ikea-blue);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 30px;
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.start-btn:hover { background: #003e8e; }
+
+/* Inline error message */
+.code-error-msg {
+  color: #dc3545;
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: none;
+}
+
+.code-error-msg.visible {
+  display: block;
   opacity: 1;
-  animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateY(0);
 }
 
-@keyframes popUp {
-  0% {
-    transform: translate(-50%, -50%) scale(0.5);
-  }
-
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
+.input-group input.input-error {
+  border-color: #dc3545;
+  animation: shake 0.5s ease-in-out;
 }
 
-/* Clue Panel (Bottom Sheet) */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Clue Panel */
 #clue-panel {
   position: fixed;
   bottom: 0;
@@ -128,23 +200,20 @@ body {
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   display: flex;
   flex-direction: column;
-  color: #333;
-  border-radius: 20px 20px 0 0;
 }
 
 #clue-panel.visible {
   transform: translateY(0);
 }
 
-#clue-panel.collapsed {
-  transform: translateY(calc(50% - 60px));
+#clue-panel.visible.collapsed {
+  transform: translateY(calc(50% - 40px));
 }
 
-#clue-panel.collapsed .clue-hint,
-#clue-panel.collapsed .ok-btn {
+#clue-panel.collapsed #clue-hint,
+#clue-panel.collapsed #cp-ok {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
 }
 
 .panel-handle-bar {
@@ -157,7 +226,7 @@ body {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border-top: 4px solid var(--accent);
+  border-top: 5px solid var(--ikea-yellow);
   background: white;
   border-radius: 20px 20px 0 0;
 }
@@ -185,6 +254,21 @@ body {
   padding: 5px;
 }
 
+.ok-btn {
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto 0;
+  width: 80%;
+  max-width: 200px;
+}
+
 .clue-header {
   display: flex;
   justify-content: space-between;
@@ -193,7 +277,7 @@ body {
 }
 
 .clue-badge {
-  background: var(--primary);
+  background: var(--ikea-blue);
   color: white;
   padding: 5px 15px;
   border-radius: 20px;
@@ -202,7 +286,7 @@ body {
 }
 
 .clue-text {
-  font-size: 1.4em;
+  font-size: 1.25em;
   font-weight: bold;
   color: #333;
   margin: 0;
@@ -213,27 +297,38 @@ body {
   color: #666;
   margin-top: 10px;
   font-style: italic;
-  font-size: 1.1em;
+  font-size: 1.2em;
 }
 
-.ok-btn {
-  background: var(--primary);
-  color: var(--accent);
-  border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
+/* Success Overlay */
+#success-overlay {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--ikea-yellow);
+  padding: 20px 40px;
+  border-radius: 50px;
+  text-align: center;
+  color: var(--ikea-blue);
   font-weight: bold;
-  font-size: 1em;
-  cursor: pointer;
-  display: block;
-  margin: 20px auto 0;
-  width: 80%;
-  max-width: 250px;
-  transition: background 0.2s;
+  font-size: 1.5em;
+  z-index: 1800;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
-.ok-btn:hover {
-  background: #003e8e;
+#success-overlay.visible {
+  opacity: 1;
+  animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popUp {
+  0% { transform: translate(-50%, -50%) scale(0.5); }
+  100% { transform: translate(-50%, -50%) scale(1); }
 }
 
 /* Reward Screen */
@@ -253,7 +348,6 @@ body {
   pointer-events: none;
   transition: opacity 0.5s ease;
   text-align: center;
-  color: #333;
 }
 
 #reward-screen.visible {
@@ -272,184 +366,159 @@ body {
 }
 
 .coupon-box {
-  border: 3px dashed var(--primary);
-  background: #f0f4ff;
+  border: 2px dashed var(--ikea-blue);
+  background: #f9f9f9;
   padding: 20px;
   margin: 20px 0;
-  font-family: 'Courier New', monospace;
+  font-family: monospace;
   font-size: 1.5em;
   font-weight: bold;
-  color: var(--primary);
-  border-radius: 10px;
-  letter-spacing: 3px;
+  color: #333;
 }
 
-/* ==================== REGISTRATION ==================== */
-#registration-overlay {
+/* Menu Button */
+#menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 3000;
+  background: var(--ikea-blue);
+  color: white;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  font-size: 24px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Side Menu */
+#side-menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 280px;
+  height: 100%;
+  background: white;
+  z-index: 4000;
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#side-menu.open { left: 0; }
+
+#side-menu-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--accent);
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.5s ease;
-}
-
-#registration-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 3500;
   display: none;
+  backdrop-filter: blur(2px);
 }
 
-.reg-container {
-  background: white;
-  padding: 25px 20px;
-  border-radius: 4px;
-  width: 90%;
-  max-width: 360px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  margin-bottom: 200px;
+#side-menu-overlay.visible { display: block; }
+
+.menu-header {
+  border-bottom: 2px solid var(--ikea-blue);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.menu-title {
+  color: var(--ikea-blue);
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.menu-player-name {
   color: #333;
-  font-family: 'Verdana', sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
 }
 
-.reg-title {
-  color: var(--primary);
-  font-size: 1.8em;
-  margin-bottom: 15px;
-  font-weight: 700;
+.reward-list-title {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
+#menu-reward-list {
+  list-style: none;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.close-menu-btn {
+  background: #eee;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: auto;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Step Styling */
 .reg-step {
   display: none;
   flex-direction: column;
   width: 100%;
 }
 
-.reg-step.active {
-  display: flex;
-}
+.reg-step.active { display: flex; }
 
 .member-btn {
   width: 85%;
   padding: 10px;
-  border: 2px solid var(--primary);
+  border: 2px solid var(--ikea-blue);
   border-radius: 30px;
   background: transparent;
-  color: var(--primary);
+  color: var(--ikea-blue);
   font-size: 0.8em;
   font-weight: bold;
   cursor: pointer;
   margin: 0 auto 12px auto;
   display: block;
   transition: all 0.2s;
-  font-family: 'Outfit', sans-serif;
-}
-
-.member-btn:hover {
-  background: rgba(0, 81, 186, 0.1);
 }
 
 .member-btn.primary {
-  background: var(--primary);
-  color: var(--accent);
-}
-
-.member-btn.primary:hover {
-  background: #003e8e;
-}
-
-.input-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.input-group label {
-  display: block;
-  color: var(--primary);
-  margin-bottom: 6px;
-  font-size: 0.9em;
-  font-weight: bold;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-size: 1.1em;
-  outline: none;
-  font-family: 'Outfit', sans-serif;
-  transition: border-color 0.2s;
-  text-align: center;
-  background: transparent;
-  color: #333;
-}
-
-#phoneInput {
-  letter-spacing: 2px;
-}
-
-.code-error-msg {
-  color: #dc3545;
-  font-size: 0.85em;
-  font-weight: bold;
-  margin-top: 8px;
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  display: none;
-  text-align: center;
-}
-
-.code-error-msg.visible {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
 }
 
 .back-btn {
+  align-self: flex-start;
   background: none;
   border: none;
-  color: var(--primary);
+  color: var(--ikea-blue);
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
-  padding: 0;
-  font-family: 'Outfit', sans-serif;
+  margin-bottom: 20px;
 }
 
 .rules-list {
   text-align: left;
   color: #333;
   font-size: 0.95em;
-  line-height: 1.8;
+  line-height: 1.5;
   margin-bottom: 25px;
   padding-left: 15px;
-}
-
-.rules-list li {
-  margin-bottom: 8px;
-}
-
-@keyframes shake {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-5px);
-  }
-
-  75% {
-    transform: translateX(5px);
-  }
 }

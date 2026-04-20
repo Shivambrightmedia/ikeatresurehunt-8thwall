@@ -1,7 +1,5 @@
 // ============================================================
-// 8th Wall AR Treasure Hunt - IKEA-style UI
-// 3 targets: bell, clock, osama
-// Sequential clue-based game with bottom sheet + success popup
+// 8th Wall AR Treasure Hunt - IKEA Original UI Sync
 // ============================================================
 
 // ---- Clue Data ----
@@ -38,6 +36,7 @@ let round = 0
 let panelCollapsed = false
 const meshes = {}
 let playerName = ''
+let playerPhone = ''
 
 // ---- DOM Helper ----
 const $ = (id) => document.getElementById(id)
@@ -55,7 +54,6 @@ const showClue = () => {
   $('clue-panel').classList.add('visible')
   $('clue-panel').classList.remove('collapsed')
   $('status-text').innerText = `Scanning for: ${clue.target.toUpperCase()}`
-  $('status-dot').className = 'status-dot pulse'
   $('ar-status').classList.remove('found')
   panelCollapsed = false
 }
@@ -84,6 +82,7 @@ const showSuccess = () => {
 const showRewardScreen = () => {
   $('clue-panel').classList.remove('visible')
   $('ar-status').style.display = 'none'
+  $('menu-btn').style.display = 'none'
   $('reward-screen').classList.add('visible')
 
   if (window.confetti) {
@@ -120,6 +119,17 @@ const setupPanelToggle = () => {
   }
 }
 
+// ---- Side Menu ----
+const setupSideMenu = () => {
+  const toggleMenu = () => {
+    $('side-menu').classList.toggle('open')
+    $('side-menu-overlay').classList.toggle('visible')
+  }
+  $('menu-btn').onclick = toggleMenu
+  $('side-menu-overlay').onclick = toggleMenu
+  $('close-menu').onclick = toggleMenu
+}
+
 // ---- Pipeline Module: Image Target Tracking ----
 const imageTargetPipelineModule = () => {
   const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08)
@@ -143,15 +153,12 @@ const imageTargetPipelineModule = () => {
     m.scale.set(scale, scale, scale)
     m.visible = true
 
-    // Update color based on current round
     const isCurrentTarget = (name === clueOrder[round]?.target)
     m.material.color.setHex(isCurrentTarget ? 0x00ff88 : 0xff4444)
 
-    // Win check
     if (isCurrentTarget && round < clueOrder.length) {
       $('ar-status').classList.add('found')
       $('status-text').innerText = `✅ ${name.toUpperCase()} FOUND!`
-      $('status-dot').className = 'status-dot'
 
       const foundRound = round
       setTimeout(() => {
@@ -184,7 +191,6 @@ const imageTargetPipelineModule = () => {
 
 // ---- Registration Flow ----
 const goToSignup = () => window.open('https://www.ikea.com/in/en/profile/signup/', '_blank');
-
 const goToStep = (step) => {
   document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'))
   $(`step-${step}`).classList.add('active')
@@ -193,34 +199,38 @@ const goToStep = (step) => {
 const setupRegistration = () => {
   $('btn-is-member').onclick = () => goToStep(2)
   $('btn-sign-up').onclick = goToSignup
-  $('link-sign-up').onclick = (e) => {
-    e.preventDefault();
-    goToSignup();
-  };
+  $('link-sign-up').onclick = (e) => { e.preventDefault(); goToSignup(); };
   $('btn-back-1').onclick = () => goToStep(1)
+  $('btn-back-2').onclick = () => goToStep(2)
 
   $('btn-continue-2').onclick = () => {
     const name = $('userNameInput').value.trim()
-    const phone = $('phoneInput').value.trim()
+    const phone = $('membershipInput').value.trim()
 
     if (!name || !/^\d{10}$/.test(phone)) {
       $('codeErrorMsg').classList.add('visible')
-      $('phoneInput').classList.add('input-error')
-      setTimeout(() => $('phoneInput').classList.remove('input-error'), 600)
+      $('userNameInput').classList.add('input-error')
+      $('membershipInput').classList.add('input-error')
+      setTimeout(() => {
+        $('userNameInput').classList.remove('input-error')
+        $('membershipInput').classList.remove('input-error')
+      }, 600)
       return
     }
 
     $('codeErrorMsg').classList.remove('visible')
     playerName = name
+    playerPhone = phone
+    $('menu-player-name').innerText = playerName
+    $('menu-player-phone').innerText = playerPhone
+    $('reward-player-name').innerText = `Well done, ${playerName}!`
     goToStep(3)
   }
-
-  $('btn-back-2').onclick = () => goToStep(2)
 
   $('startBtn').onclick = () => {
     $('registration-overlay').classList.add('hidden')
     $('ar-status').style.display = 'flex'
-    $('reward-player-name').innerText = `Well done, ${playerName}!`
+    $('menu-btn').style.display = 'flex'
     startAR()
   }
 }
@@ -252,12 +262,13 @@ const startAR = () => {
   window.XR8
     ? (window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded))
     : window.addEventListener('xrloaded', () => {
-      window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded)
-    })
+        window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded)
+      })
 }
 
 // ---- Init ----
 window.onload = () => {
   setupPanelToggle()
+  setupSideMenu()
   setupRegistration()
 }
