@@ -383,19 +383,17 @@ body {
   padding: 12px 15px;
   border: 2px solid #ccc;
   border-radius: 8px;
-  font-size: 1em;
+  font-size: 1.1em;
   outline: none;
   font-family: 'Outfit', sans-serif;
   transition: border-color 0.2s;
+  text-align: center;
+  background: transparent;
+  color: #333;
 }
 
-.input-group input:focus {
-  border-color: var(--primary);
-}
-
-.input-group input.input-error {
-  border-color: #dc3545;
-  animation: shake 0.5s ease-in-out;
+#phoneInput {
+  letter-spacing: 2px;
 }
 
 .code-error-msg {
@@ -407,6 +405,7 @@ body {
   transform: translateY(-5px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   display: none;
+  text-align: center;
 }
 
 .code-error-msg.visible {

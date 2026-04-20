@@ -48,18 +48,16 @@
 
         <h3 style="margin-bottom: 30px; color:var(--primary);">Tell us about yourself</h3>
 
-        <div class="input-group" style="width:100%; margin-bottom:20px;">
-          <label style="color:var(--primary); font-weight:bold; margin-bottom:5px; display:block;">Full Name</label>
-          <input type="text" id="userNameInput" placeholder="Enter your name"
-            style="text-align:center; font-size:1.1em; background:transparent; color:#333; width:100%; padding:10px; border:2px solid #ccc;">
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="userNameInput" placeholder="Enter your name">
         </div>
 
-        <div class="input-group" style="width:100%;">
-          <label style="color:var(--primary); font-weight:bold; margin-bottom:5px; display:block;">Mobile Number</label>
+        <div class="input-group">
+          <label>Mobile Number</label>
           <input type="text" id="phoneInput" placeholder="10-digit number" maxlength="10" pattern="\d{10}"
-            inputmode="numeric" autocomplete="off"
-            style="text-align:center; font-size:1.1em; letter-spacing:2px; background:transparent; color:#333; width:100%; padding:10px; border:2px solid #ccc;">
-          <p class="code-error-msg" id="codeErrorMsg" style="text-align:center;">❌ Enter name and 10-digit number</p>
+            inputmode="numeric" autocomplete="off">
+          <p class="code-error-msg" id="codeErrorMsg">❌ Enter name and 10-digit number</p>
         </div>
 
         <button class="member-btn primary" id="btn-continue-2" style="border-radius:30px;">CONTINUE</button>
