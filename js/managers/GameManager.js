@@ -23,7 +23,29 @@ class GameManager {
     // 1. Check for existing session (Resume)
     const existing = await this.db.getSessionByPhone(phone);
     
-    if (existing && existing.status !== 'completed') {
+    if (existing) {
+      if (existing.status === 'completed') {
+        // Already finished - show reward screen
+        this.sessionId = existing.id;
+        this.playerName = existing.player_name || name;
+        this.startedAt = new Date(existing.started_at);
+        
+        let finalTimeStr = '';
+        if (existing.completed_at) {
+          const start = new Date(existing.started_at);
+          const end = new Date(existing.completed_at);
+          const diffMs = end - start;
+          const mins = Math.floor(diffMs / 60000);
+          const secs = Math.floor((diffMs % 60000) / 1000);
+          finalTimeStr = `${mins}m ${secs}s`;
+        }
+        
+        if (this.onGameComplete) {
+          this.onGameComplete(this.playerName, finalTimeStr);
+        }
+        return;
+      }
+
       // Resume existing game
       this.sessionId = existing.id;
       this.playerName = existing.player_name || name;
@@ -31,9 +53,11 @@ class GameManager {
       this.startedAt = new Date(existing.started_at);
       
       // Load assigned clues from DB
-      if (existing.assigned_clues) {
-        this.clueOrder = existing.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id));
-      } else {
+      if (existing.assigned_clues && existing.assigned_clues.length > 0) {
+        this.clueOrder = existing.assigned_clues.map(id => this.cluePool.pool.find(c => c.id === id)).filter(c => c);
+      }
+      
+      if (this.clueOrder.length === 0) {
         this.clueOrder = this.cluePool.getShuffled(CONFIG.TOTAL_CLUES);
       }
     } else {

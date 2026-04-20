@@ -36,9 +36,10 @@ game.onSuccess = () => {
 };
 
 game.onGameComplete = (name, timeTaken) => {
+  $('registration-overlay').classList.add('hidden'); // Ensure reg is hidden
   $('clue-panel').classList.remove('visible');
   $('ar-status').style.display = 'none';
-  $('menu-btn').style.display = 'none';
+  $('menu-btn').style.display = 'flex'; // KEEP MENU VISIBLE
   $('reward-screen').classList.add('visible');
   $('reward-player-name').innerText = `Well done, ${name}!`;
 
