@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/studytablemat_luminance.jpg",
+  "metadata": null,
+  "name": "studytablemat",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 128,
+    "width": 1008,
+    "height": 1344,
+    "isRotated": true,
+    "originalWidth": 1008,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "studytablemat_original.jpg",
+    "croppedImage": "studytablemat_cropped.jpg",
+    "thumbnailImage": "studytablemat_thumbnail.jpg",
+    "luminanceImage": "studytablemat_luminance.jpg"
+  },
+  "created": 1776851947063,
+  "updated": 1776851947063
+}

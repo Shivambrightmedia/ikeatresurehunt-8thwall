@@ -220,7 +220,7 @@ const setupRegistration = () => {
 // ---- 8th Wall Boot ----
 const startAR = () => {
   const onxrloaded = async () => {
-const jsonFiles = ['image-targets/ikeaclock.json', 'image-targets/monkey.json', 'image-targets/orangedog.json', 'image-targets/tigerpilow.json'];
+const jsonFiles = ['image-targets/ikeaclock.json', 'image-targets/iglu.json', 'image-targets/studymat.json', 'image-targets/tigerpilow.json'];
     const imageTargetData = await Promise.all(jsonFiles.map(f => fetch(f).then(r => r.json())));
     XR8.XrController.configure({ imageTargetData });
 
