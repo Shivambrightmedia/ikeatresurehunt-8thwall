@@ -4,7 +4,8 @@ class DatabaseService {
   }
 
   // --- ACCESS CODES ---
-  
+
+
   async validateAccessCode(code) {
     try {
       const { data, error } = await this.client
@@ -12,7 +13,7 @@ class DatabaseService {
         .select('*')
         .eq('code', code)
         .maybeSingle();
-      
+
       if (error) return null;
       return data;
     } catch (err) {
@@ -21,19 +22,21 @@ class DatabaseService {
     }
   }
 
+
+
   async registerAccessCode(code, userName) {
     try {
       const { data, error } = await this.client
         .from('access_codes')
-        .insert([{ 
-          code, 
-          user_name: userName, 
+        .insert([{
+          code,
+          user_name: userName,
           status: 'active',
           activated_at: new Date().toISOString()
         }])
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } catch (err) {
@@ -106,11 +109,11 @@ class DatabaseService {
       if (updates.status) {
         const codeUpdates = { status: updates.status };
         if (updates.status === 'completed') codeUpdates.completed_at = new Date().toISOString();
-        
+
         await this.client
-            .from('access_codes')
-            .update(codeUpdates)
-            .eq('code', accessCode);
+          .from('access_codes')
+          .update(codeUpdates)
+          .eq('code', accessCode);
       }
     } catch (err) {
       console.error('Update progress error:', err);

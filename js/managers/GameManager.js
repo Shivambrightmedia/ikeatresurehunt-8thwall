@@ -33,7 +33,7 @@ class GameManager {
         .select('*')
         .eq('access_code', phone)
         .maybeSingle();
-      
+
       const sess = error ? null : data;
       this.handleLockedSession(sess, name);
       return;
@@ -71,14 +71,14 @@ class GameManager {
   handleLockedSession(session, name) {
     let finalTimeStr = '';
     const rewards = session?.rewards_earned || [];
-    
+
     if (session && session.started_at && session.completed_at) {
       const diffMs = new Date(session.completed_at) - new Date(session.started_at);
       const mins = Math.floor(diffMs / 60000);
       const secs = Math.floor((diffMs % 60000) / 1000);
       finalTimeStr = `${mins}m ${secs}s`;
     }
-    
+
     if (this.onGameComplete) {
       this.onGameComplete(name, finalTimeStr, rewards);
     }
@@ -121,7 +121,7 @@ class GameManager {
   async completeGame() {
     let finalTimeStr = '';
     let rewards = [];
-    
+
     if (this.startedAt) {
       const now = new Date();
       const diffMs = now - this.startedAt;
@@ -134,7 +134,7 @@ class GameManager {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     const barcode = `IKEA-${timestamp}-${random}`;
-    
+
     rewards = [{
       id: 'reward_final',
       type: 'final',
@@ -155,5 +155,5 @@ class GameManager {
 
   getCurrentTarget() {
     return this.clueOrder[this.round]?.target;
-  }
+  } m
 }
