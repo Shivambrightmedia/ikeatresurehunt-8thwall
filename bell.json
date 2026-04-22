@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/bell_luminance.jpg",
+  "metadata": null,
+  "name": "bell",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 0,
+    "width": 1200,
+    "height": 1600,
+    "isRotated": false,
+    "originalWidth": 1200,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "bell_original.jpg",
+    "croppedImage": "bell_cropped.jpg",
+    "thumbnailImage": "bell_thumbnail.jpg",
+    "luminanceImage": "bell_luminance.jpg"
+  },
+  "created": 1776664952125,
+  "updated": 1776664952125
+}
