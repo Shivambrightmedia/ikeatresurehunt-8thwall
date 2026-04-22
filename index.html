@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>IKEA AR Treasure Hunt | Powered by 8th Wall</title>
+
+  <!-- 8th Wall Engine (Self-Hosted) -->
+  <script async src="xr.js" data-preload-chunks="slam"></script>
+  <script src="https://cdn.8thwall.com/web/xrextras/xrextras.js"></script>
+
+  <!-- Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Camera Feed -->
+  <canvas id="camerafeed"></canvas>
+
+  <!-- Registration Overlay -->
+  <div id="registration-overlay">
+    <div class="reg-container">
+
+      <!-- STEP 1: Are you a member? -->
+      <div id="step-1" class="reg-step active">
+        <img src="ikealogo.png" alt="IKEA Logo" style="width: 150px; display: block; margin: 0 auto 20px auto;">
+        <h3 style="margin-bottom: 10px; color:var(--ikea-blue);">Join the AR Treasure Hunt Experience and win exciting
+          gifts</h3>
+        <p style="margin-bottom: 30px; font-size: 1.1em; color:#333;">Are you an IKEA Member?</p>
+
+        <button class="member-btn primary" id="btn-is-member">YES, I AM A MEMBER</button>
+        <button class="member-btn" id="btn-sign-up">NO, SIGN ME UP</button>
+      </div>
+
+      <!-- STEP 2: Membership Input -->
+      <div id="step-2" class="reg-step">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; width: 100%;">
+          <button class="back-btn" id="btn-back-1">&#8592; Back</button>
+          <span style="font-weight:bold; color:var(--ikea-blue);">Enter Membership</span>
+          <span style="visibility:hidden; width: 50px;">Hide</span>
+        </div>
+
+        <h3 style="margin-bottom: 30px; color:var(--ikea-blue);">Tell us about yourself</h3>
+
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="userNameInput" placeholder="Enter your name">
+        </div>
+
+        <div class="input-group">
+          <label>Mobile Number</label>
+          <input type="text" id="membershipInput" placeholder="10-digit number" maxlength="10" pattern="\d{10}"
+            inputmode="numeric" autocomplete="off">
+          <p class="code-error-msg" id="codeErrorMsg">❌ Enter name and 10-digit number</p>
+        </div>
+
+        <button class="member-btn primary" id="btn-continue-2">CONTINUE</button>
+
+        <p style="margin-top: 20px; font-size: 0.9em;">
+          <span style="color:#666;">Not a member?</span>
+          <a href="#" id="link-sign-up" style="color: var(--ikea-blue); text-decoration:none; font-weight:bold;">Sign up</a>
+        </p>
+      </div>
+
+      <!-- STEP 3: Rules Page -->
+      <div id="step-3" class="reg-step">
+        <button class="back-btn" id="btn-back-2">&#8592; Back</button>
+
+        <h2 style="color:var(--ikea-blue); margin-top:0;">How to Play!</h2>
+
+        <ul class="rules-list">
+          <li><strong>Explore:</strong> Walk around the IKEA store to find the hidden zones.</li>
+          <li><strong>Scan:</strong> Use your phone's camera to scan the AR markers found in the zones.</li>
+          <li><strong>Solve:</strong> Answer clues to unlock your next destination.</li>
+          <li><strong>Win:</strong> Complete all clues to earn exciting IKEA rewards!</li>
+        </ul>
+
+        <button class="start-btn" id="startBtn">START HUNTING</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Hamburger Menu Button -->
+  <button id="menu-btn">☰</button>
+
+  <!-- Side Menu -->
+  <div id="side-menu-overlay"></div>
+  <div id="side-menu">
+    <div class="menu-header">
+      <div class="menu-title">Explorer Profile</div>
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <div id="menu-player-name" class="menu-player-name">Adventurer</div>
+        <div id="menu-player-phone" style="color: #666; font-size: 0.85em; letter-spacing: 1px;">-</div>
+      </div>
+    </div>
+
+    <div class="reward-list-title">My Rewards</div>
+    <div id="menu-reward-list">
+      <p style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>
+    </div>
+
+    <button class="close-menu-btn" id="close-menu">Close Menu</button>
+  </div>
+
+  <!-- Status Indicator -->
+  <div id="ar-status">
+    <span class="status-dot pulse" id="status-dot"></span>
+    <span id="status-text">Scanning...</span>
+  </div>
+
+  <!-- Success Pop-up -->
+  <div id="success-overlay">✨ Clue Found! ✨</div>
+
+  <!-- Clue Panel -->
+  <div id="clue-panel">
+    <div class="panel-handle-bar" id="cp-toggle-bar">
+      <div class="handle-pill"></div>
+    </div>
+
+    <div class="panel-controls">
+      <button class="toggle-btn" id="cp-toggle-icon">▼</button>
+    </div>
+
+    <div style="margin-top: 25px;">
+      <div class="clue-header">
+        <span class="clue-badge" id="clue-number">Clue 1/3</span>
+        <span style="font-size:24px;">🔍</span>
+      </div>
+      <p class="clue-text" id="clue-text">Loading...</p>
+      <p class="clue-hint" id="clue-hint">...</p>
+
+      <button class="ok-btn" id="cp-ok">OK, Got it!</button>
+    </div>
+  </div>
+
+  <!-- Reward Screen -->
+  <div id="reward-screen">
+    <div class="reward-content">
+      <div class="reward-icon">🏆</div>
+      <h2 id="reward-player-name" style="color: var(--ikea-blue);">Well done!</h2>
+      <p>You have found all the items!</p>
+      <p>Show this screen at the counter to claim your reward.</p>
+
+      <div class="coupon-box">
+        CODE: SCAN-IKEA-2024
+      </div>
+
+      <button class="start-btn" onclick="location.reload()">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- Supabase Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Modular Game Logic -->
+  <script src="js/config.js"></script>
+  <script src="js/models/Clue.js"></script>
+  <script src="js/services/DatabaseService.js"></script>
+  <script src="js/managers/GameManager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

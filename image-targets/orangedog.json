@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/orangedog_luminance.jpg",
+  "metadata": null,
+  "name": "orangedog",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 0,
+    "width": 1200,
+    "height": 1600,
+    "isRotated": false,
+    "originalWidth": 1200,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "orangedog_original.jpg",
+    "croppedImage": "orangedog_cropped.jpg",
+    "thumbnailImage": "orangedog_thumbnail.jpg",
+    "luminanceImage": "orangedog_luminance.jpg"
+  },
+  "created": 1776849437127,
+  "updated": 1776849437127
+}

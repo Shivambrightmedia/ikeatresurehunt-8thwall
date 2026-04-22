@@ -1,0 +1,23 @@
+{
+  "imagePath": "image-targets/tigerpilow_luminance.jpg",
+  "metadata": null,
+  "name": "tigerpilow",
+  "type": "PLANAR",
+  "properties": {
+    "left": 0,
+    "top": 0,
+    "width": 1200,
+    "height": 1600,
+    "isRotated": false,
+    "originalWidth": 1200,
+    "originalHeight": 1600
+  },
+  "resources": {
+    "originalImage": "tigerpilow_original.jpg",
+    "croppedImage": "tigerpilow_cropped.jpg",
+    "thumbnailImage": "tigerpilow_thumbnail.jpg",
+    "luminanceImage": "tigerpilow_luminance.jpg"
+  },
+  "created": 1776849554767,
+  "updated": 1776849554767
+}

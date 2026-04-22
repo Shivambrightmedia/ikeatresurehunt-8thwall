@@ -1,0 +1,559 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Verdana', sans-serif;
+  /* IKEA-ish font */
+}
+
+/* Branding Colors */
+:root {
+  --ikea-blue: #0051ba;
+  --ikea-yellow: #ffda1a;
+}
+
+/* AR Scene - Full screen background */
+#camerafeed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Status indicator */
+#ar-status {
+  position: fixed;
+  top: 70px;
+  left: 10px;
+  z-index: 1000;
+  background: transparent;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  display: none;
+  /* Show after registration */
+  align-items: center;
+}
+
+#ar-status.found {
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+  font-weight: bold;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #28a745;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.status-dot.red {
+  background-color: #dc3545;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+}
+
+.status-dot.pulse {
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+}
+
+/* Registration Overlay */
+#registration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--ikea-yellow);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+#registration-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.reg-container {
+  background: white;
+  padding: 40px;
+  border-radius: 4px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  margin-bottom: 200px;
+}
+
+.reg-title {
+  color: var(--ikea-blue);
+  font-size: 1.8em;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.input-group {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 0;
+  font-size: 1.1em;
+  outline: none;
+  text-align: center;
+}
+
+.input-group input:focus {
+  border-color: var(--ikea-blue);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 30px;
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.start-btn:hover {
+  background: #003e8e;
+}
+
+/* Inline error message */
+.code-error-msg {
+  color: #dc3545;
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: none;
+}
+
+.code-error-msg.visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.input-group input.input-error {
+  border-color: #dc3545;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Clue Panel */
+#clue-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 50%;
+  width: 100%;
+  background: white;
+  padding: 20px;
+  z-index: 1500;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(120%);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+#clue-panel.visible {
+  transform: translateY(0);
+}
+
+#clue-panel.visible.collapsed {
+  transform: translateY(calc(50% - 40px));
+}
+
+#clue-panel.collapsed #clue-hint,
+#clue-panel.collapsed #cp-ok {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel-handle-bar {
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-top: 5px solid var(--ikea-yellow);
+  background: white;
+  border-radius: 20px 20px 0 0;
+}
+
+.handle-pill {
+  width: 40px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.panel-controls {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  z-index: 10;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+}
+
+.ok-btn {
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto 0;
+  width: 80%;
+  max-width: 200px;
+}
+
+.clue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.clue-badge {
+  background: var(--ikea-blue);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.clue-text {
+  font-size: 1.25em;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.clue-hint {
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
+  font-size: 1.2em;
+}
+
+/* Success Overlay */
+#success-overlay {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--ikea-yellow);
+  padding: 20px 40px;
+  border-radius: 50px;
+  text-align: center;
+  color: var(--ikea-blue);
+  font-weight: bold;
+  font-size: 1.5em;
+  z-index: 1800;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+#success-overlay.visible {
+  opacity: 1;
+  animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popUp {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Reward Screen */
+#reward-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: 2500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  text-align: center;
+}
+
+#reward-screen.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reward-content {
+  padding: 40px;
+  max-width: 400px;
+}
+
+.reward-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.coupon-box {
+  border: 2px dashed var(--ikea-blue);
+  background: #f9f9f9;
+  padding: 20px;
+  margin: 20px 0;
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Menu Button */
+#menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 3000;
+  background: var(--ikea-blue);
+  color: white;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  font-size: 24px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Side Menu */
+#side-menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 280px;
+  height: 100%;
+  background: white;
+  z-index: 4000;
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#side-menu.open {
+  left: 0;
+}
+
+#side-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 3500;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+
+#side-menu-overlay.visible {
+  display: block;
+}
+
+.menu-header {
+  border-bottom: 2px solid var(--ikea-blue);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.menu-title {
+  color: var(--ikea-blue);
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.menu-player-name {
+  color: #333;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.reward-list-title {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#menu-reward-list {
+  list-style: none;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.close-menu-btn {
+  background: #eee;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: auto;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Step Styling */
+.reg-step {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+}
+
+.reg-step.active {
+  display: flex;
+}
+
+.member-btn {
+  width: 85%;
+  padding: 10px;
+  border: 2px solid var(--ikea-blue);
+  border-radius: 30px;
+  background: transparent;
+  color: var(--ikea-blue);
+  font-size: 0.8em;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0 auto 12px auto;
+  display: block;
+  transition: all 0.2s;
+}
+
+.member-btn.primary {
+  background: var(--ikea-blue);
+  color: var(--ikea-yellow);
+}
+
+.back-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--ikea-blue);
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.rules-list {
+  text-align: left;
+  color: #333;
+  font-size: 0.95em;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  padding-left: 15px;
+}
