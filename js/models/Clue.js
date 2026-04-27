@@ -10,10 +10,10 @@ class Clue {
 class CluePool {
   constructor() {
     this.pool = [
-new Clue('clue_1', 'ikeaclock', 'I have hands but no arms, and I help you stay on time. Find the IKEA Clock!', 'HINT: Check the wall - time is ticking!'),
-      new Clue('clue_2', 'iglu', 'I keep you warm in cold weather and look like a dome. Find the Igloo!', 'HINT: Look for something that looks like a snow house!'),
-      new Clue('clue_3', 'studytablemat', 'I protect your desk and help you study. Find the Study Mat!', 'HINT: Look for something on your study table!'),
-      new Clue('clue_4', 'tigerpilow', 'I have stripes and I\'m soft to cuddle. Find the Tiger Pillow!', 'HINT: Look for something striped and comfortable!')
+      new Clue('clue_1', 'ikeaclock', 'I don’t speak, but I always tell the right time. Find me!', 'HINT: Check the wall - time is ticking!'),
+      new Clue('clue_2', 'iglu', 'I slide on ice, waddle on land, and love chilly places. Who am I?', 'HINT: Look for something that loves the cold!'),
+      new Clue('clue_3', 'studytablemat', 'I’m not a zoo, but I bring the safari to your table. Find me!', 'HINT: Look for something on your study table!'),
+      new Clue('clue_4', 'tigerpilow', 'I’m soft, striped, and ready to pounce on your sofa. Find me if you can!', 'HINT: Look for something striped and comfortable!')
     ];
   }
 
