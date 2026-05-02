@@ -33,23 +33,23 @@ game.onSuccess = (roundNum, total) => {
 
   setTimeout(() => {
     $('success-overlay').classList.remove('visible');
-    
+
     // Show Milestone Popup
     const rewardName = REWARD_NAMES[roundNum - 1];
     const emoji = rewardName.split(' ').pop();
     const code = `IKEA-${Math.random().toString(36).substring(7).toUpperCase()}`;
     const nextCount = total - roundNum;
-    
+
     // Update Popup DOM
     const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
     const popupTitle = document.querySelector('.milestone-content h2');
     const popupText = document.querySelector('.milestone-content p');
     const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
-    
+
     if (popupIcon) popupIcon.innerText = emoji;
     if (popupTitle) popupTitle.innerText = 'Milestone Unlocked!';
     if (popupText) popupText.innerText = `You won: ${rewardName}`;
-    
+
     // Update Mini Map
     if (miniDots.length > 0) {
       miniDots.forEach((dot, index) => {
@@ -58,10 +58,10 @@ game.onSuccess = (roundNum, total) => {
         if (index === roundNum - 1) dot.classList.add('active');
       });
     }
-    
+
     $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
     $('milestone-code').innerText = code;
-    
+
     if (nextCount > 0) {
       $('milestone-next-msg').innerText = `Unlock next ${nextCount} to win more!`;
       $('milestone-next-msg').style.display = 'block';
@@ -69,7 +69,7 @@ game.onSuccess = (roundNum, total) => {
       $('milestone-next-msg').style.display = 'none';
       if (popupTitle) popupTitle.innerText = 'Hunt Complete!';
     }
-    
+
     $('milestone-overlay').classList.add('visible');
 
     // Add to rewards pool
@@ -120,7 +120,7 @@ const REWARD_NAMES = [
 const updateMenuRewards = (rewards) => {
   const nodesContainer = $('map-nodes');
   const nextRewardName = $('next-reward-name');
-  
+
   if (!nodesContainer) return;
 
   const currentRound = game.round; // 0 to 4
@@ -139,12 +139,15 @@ const updateMenuRewards = (rewards) => {
     const isActive = i === currentRound;
     const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
     const reward = rewards ? rewards[i] : null;
-    
+
     return `
-      <div class="map-node ${statusClass}" 
-           style="left: ${pos.x}%; top: ${pos.y}px;" 
-           onclick="showMapReward(${i})">
-        ${isCompleted ? '✓' : (i + 1)}
+      <div style="position: absolute; left: ${pos.x}%; top: ${pos.y}px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
+        <div class="map-node ${statusClass}" 
+             style="position: relative; left: 0; top: 0; transform: none;" 
+             onclick="showMapReward(${i})">
+          ${isCompleted ? '✓' : (i + 1)}
+        </div>
+        <div style="font-size: 0.7em; font-weight: bold; color: #333; margin-top: 4px; text-shadow: 0 1px 2px white; background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 10px;">Level ${i + 1}</div>
       </div>
     `;
   }).join('');
@@ -161,7 +164,7 @@ const updateMenuRewards = (rewards) => {
 window.showMapReward = (index) => {
   const rewards = game.rewards || [];
   const reward = rewards[index];
-  
+
   if (!reward) {
     alert(`Complete Clue ${index + 1} to unlock ${REWARD_NAMES[index]}!`);
     return;
@@ -171,16 +174,16 @@ window.showMapReward = (index) => {
   $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${reward.barcode}`;
   $('milestone-code').innerText = reward.barcode;
   $('milestone-next-msg').style.display = 'none';
-  
+
   const popupTitle = document.querySelector('.milestone-content h2');
   const popupText = document.querySelector('.milestone-content p');
   const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
   const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
-  
+
   if (popupTitle) popupTitle.innerText = 'Your Reward';
   if (popupText) popupText.innerText = REWARD_NAMES[index];
   if (popupIcon) popupIcon.innerText = REWARD_NAMES[index].split(' ').pop();
-  
+
   // Update Mini Map
   if (miniDots.length > 0) {
     miniDots.forEach((dot, i) => {
@@ -189,7 +192,7 @@ window.showMapReward = (index) => {
       if (i === index) dot.classList.add('active');
     });
   }
-  
+
   $('milestone-overlay').classList.add('visible');
 };
 
@@ -327,10 +330,22 @@ const setupRegistration = () => {
     goToStep(3);
   };
 
+  const stopRulesVideo = () => {
+    const iframe = $('rules-video');
+    if (iframe) {
+      const src = iframe.src;
+      iframe.src = src;
+    }
+  };
+
   $('btn-back-terms').onclick = () => goToStep(2);
-  $('btn-back-2').onclick = () => goToStep('terms');
+  $('btn-back-2').onclick = () => {
+    stopRulesVideo();
+    goToStep('terms');
+  };
 
   $('startBtn').onclick = async () => {
+    stopRulesVideo();
     const name = $('userNameInput').value.trim();
     const phone = $('membershipInput').value.trim();
 
@@ -349,7 +364,7 @@ const setupRegistration = () => {
 // ---- 8th Wall Boot ----
 const startAR = () => {
   const onxrloaded = async () => {
-const jsonFiles = ['image-targets/ikeaclock.json', 'image-targets/iglu.json', 'image-targets/studytablemat.json', 'image-targets/tigerpilow.json'];
+    const jsonFiles = ['image-targets/ikeaclock.json', 'image-targets/iglu.json', 'image-targets/studytablemat.json', 'image-targets/tigerpilow.json'];
     const imageTargetData = await Promise.all(jsonFiles.map(f => fetch(f).then(r => r.json())));
     XR8.XrController.configure({ imageTargetData });
 
@@ -380,7 +395,7 @@ window.onload = () => {
   setupSideMenu();
   setupRegistration();
   updateMenuRewards([]);
-  
+
   $('milestone-close').onclick = () => {
     $('milestone-overlay').classList.remove('visible');
   };
