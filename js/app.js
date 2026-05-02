@@ -186,7 +186,6 @@ const setupRegistration = () => {
   $('btn-sign-up').onclick = goToSignup;
   $('link-sign-up').onclick = (e) => { e.preventDefault(); goToSignup(); };
   $('btn-back-1').onclick = () => goToStep(1);
-  $('btn-back-2').onclick = () => goToStep(2);
 
   $('btn-continue-2').onclick = () => {
     const name = $('userNameInput').value.trim();
@@ -198,8 +197,20 @@ const setupRegistration = () => {
     }
 
     $('codeErrorMsg').classList.remove('visible');
-    goToStep(3); // Go to Rules Page
+    goToStep('terms');
   };
+
+  $('btn-continue-terms').onclick = () => {
+    if (!$('terms-checkbox').checked) {
+      $('termsErrorMsg').classList.add('visible');
+      return;
+    }
+    $('termsErrorMsg').classList.remove('visible');
+    goToStep(3);
+  };
+
+  $('btn-back-terms').onclick = () => goToStep(2);
+  $('btn-back-2').onclick = () => goToStep('terms');
 
   $('startBtn').onclick = async () => {
     const name = $('userNameInput').value.trim();

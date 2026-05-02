@@ -38,7 +38,8 @@
 
       <!-- STEP 2: Membership Input -->
       <div id="step-2" class="reg-step">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; width: 100%;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; width: 100%;">
           <button class="back-btn" id="btn-back-1">&#8592; Back</button>
           <span style="font-weight:bold; color:var(--ikea-blue);">Enter Membership</span>
           <span style="visibility:hidden; width: 50px;">Hide</span>
@@ -62,8 +63,33 @@
 
         <p style="margin-top: 20px; font-size: 0.9em;">
           <span style="color:#666;">Not a member?</span>
-          <a href="#" id="link-sign-up" style="color: var(--ikea-blue); text-decoration:none; font-weight:bold;">Sign up</a>
+          <a href="#" id="link-sign-up" style="color: var(--ikea-blue); text-decoration:none; font-weight:bold;">Sign
+            up</a>
         </p>
+      </div>
+
+      <!-- STEP 2.5: Terms and Conditions -->
+      <div id="step-terms" class="reg-step">
+        <button class="back-btn" id="btn-back-terms">&#8592; Back</button>
+        <h3 style="color:var(--ikea-blue); margin-top:0;">Terms & Conditions</h3>
+        <div
+          style="text-align:left; font-size:0.85em; color:#555; height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 20px;">
+          <p>By participating in the IKEA AR Treasure Hunt, you agree to the following:</p>
+          <p>1. We collect your <strong>Name</strong> and <strong>Mobile Number</strong> to track your game progress and
+            reward eligibility.</p>
+          <p>2. Your data will be stored securely and used only for this experience.</p>
+          <p>3. Standard IKEA privacy policy applies to all collected information.</p>
+          <p>4. Rewards are subject to availability and store terms.</p>
+        </div>
+
+        <div class="terms-container">
+          <input type="checkbox" id="terms-checkbox">
+          <label for="terms-checkbox">I agree to these terms and conditions and consent to data collection.</label>
+        </div>
+
+        <p class="code-error-msg" id="termsErrorMsg">❌ Please agree to the terms to continue</p>
+
+        <button class="member-btn primary" id="btn-continue-terms">CONTINUE</button>
       </div>
 
       <!-- STEP 3: Rules Page -->
@@ -79,7 +105,12 @@
           <li><strong>Win:</strong> Complete all clues to earn exciting IKEA rewards!</li>
         </ul>
 
-        <button class="start-btn" id="startBtn">START HUNTING</button>
+        <!-- Rules Video -->
+        <iframe class="rules-video" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+
+        <button class="start-btn" id="startBtn" style="margin-top: 20px;">START HUNTING</button>
       </div>
 
     </div>
@@ -156,7 +187,7 @@
 
   <!-- Supabase Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <!-- Modular Game Logic -->
   <script src="js/config.js"></script>
   <script src="js/models/Clue.js"></script>
