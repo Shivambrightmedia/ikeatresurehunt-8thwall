@@ -106,7 +106,11 @@
         </ul>
 
         <!-- Rules Video -->
-        <iframe class="rules-video" width="560" height="315" src="https://www.youtube.com/embed/BJefNLFTM2Y?si=SyCSYPFuDrqmqotv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe class="rules-video" width="560" height="315"
+          src="https://www.youtube.com/embed/BJefNLFTM2Y?si=SyCSYPFuDrqmqotv" title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
         <button class="start-btn" id="startBtn" style="margin-top: 20px;">START HUNTING</button>
       </div>
@@ -130,7 +134,10 @@
 
     <div class="reward-list-title">My Rewards</div>
     <div id="menu-reward-list">
-      <p style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>
+      <div class="reward-grid" id="reward-grid">
+        <!-- QR codes will be injected here -->
+      </div>
+      <p id="no-rewards-msg" style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>
     </div>
 
     <button class="close-menu-btn" id="close-menu">Close Menu</button>
@@ -180,6 +187,24 @@
       </div>
 
       <button class="start-btn" onclick="location.reload()">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- Milestone Reward Pop-up -->
+  <div id="milestone-overlay">
+    <div class="milestone-content">
+      <div style="font-size: 40px; margin-bottom: 10px;">🍦</div>
+      <h2 style="color: var(--ikea-blue); margin-top: 0;">Milestone Unlocked!</h2>
+      <p style="font-size: 1.1em; font-weight: bold; color: #333;">You won an ice cream!</p>
+
+      <div class="qr-container">
+        <img id="milestone-qr" src="" alt="QR Code">
+        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">CODE: <span id="milestone-code">...</span></p>
+      </div>
+
+      <p id="milestone-next-msg" style="color: var(--ikea-blue); font-weight: bold; margin-top: 20px;">Unlock next 3 to win this!</p>
+
+      <button class="ok-btn" id="milestone-close">COOL!</button>
     </div>
   </div>
 

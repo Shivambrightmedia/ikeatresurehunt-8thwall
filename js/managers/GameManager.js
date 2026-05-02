@@ -103,7 +103,7 @@ class GameManager {
     const currentClue = this.clueOrder[this.round];
     if (targetName === currentClue.target) {
       this.isTransitioning = true;
-      if (this.onSuccess) this.onSuccess();
+      if (this.onSuccess) this.onSuccess(this.round + 1, this.clueOrder.length);
 
       const newRound = this.round + 1;
       await this.db.updateProgress(this.accessCode, {

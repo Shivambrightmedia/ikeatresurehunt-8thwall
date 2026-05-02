@@ -614,3 +614,86 @@ body {
   flex: 1;
   overflow-y: auto;
 }
+
+/* Milestone Overlay */
+#milestone-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2800;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+#milestone-overlay.visible {
+  display: flex;
+}
+
+.milestone-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 350px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  animation: milestonePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes milestonePop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.qr-container {
+  margin: 20px auto;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 2px dashed var(--ikea-blue);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.qr-container img {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+
+/* Reward Grid in Profile */
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.reward-qr-item {
+  background: #f0f0f0;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.reward-qr-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.reward-qr-item span {
+  font-size: 0.65em;
+  color: #333;
+  font-weight: bold;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

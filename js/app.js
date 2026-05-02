@@ -21,7 +21,7 @@ game.onClueUpdate = (clue, roundNum, total) => {
   $('ar-status').classList.remove('found');
 };
 
-game.onSuccess = () => {
+game.onSuccess = (roundNum, total) => {
   $('ar-status').classList.add('found');
   $('status-text').innerText = `✅ TARGET FOUND!`;
   $('success-overlay').classList.add('visible');
@@ -32,6 +32,28 @@ game.onSuccess = () => {
 
   setTimeout(() => {
     $('success-overlay').classList.remove('visible');
+    
+    // Show Milestone Popup
+    const code = `IKEA-ICE-${Math.random().toString(36).substring(7).toUpperCase()}`;
+    const nextCount = total - roundNum;
+    
+    $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
+    $('milestone-code').innerText = code;
+    
+    if (nextCount > 0) {
+      $('milestone-next-msg').innerText = `Unlock next ${nextCount} to win this!`;
+      $('milestone-next-msg').style.display = 'block';
+    } else {
+      $('milestone-next-msg').style.display = 'none';
+    }
+    
+    $('milestone-overlay').classList.add('visible');
+
+    // Add to rewards pool for side menu
+    const newReward = { type: 'milestone', barcode: code, unlocked_at: new Date().toISOString() };
+    const currentRewards = game.rewards || [];
+    game.rewards = [...currentRewards, newReward];
+    updateMenuRewards(game.rewards);
   }, 2000);
 };
 
@@ -66,21 +88,24 @@ game.onGameComplete = (name, timeTaken, rewards) => {
 
 // ---- Profile / Rewards UI ----
 const updateMenuRewards = (rewards) => {
-  const list = $('menu-reward-list');
+  const grid = $('reward-grid');
+  const noMsg = $('no-rewards-msg');
+  
   if (!rewards || rewards.length === 0) {
-    list.innerHTML = '<p style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>';
+    if (grid) grid.innerHTML = '';
+    if (noMsg) noMsg.style.display = 'block';
     return;
   }
 
-  list.innerHTML = rewards.map((r, i) => `
-    <div class="menu-reward-item" id="reward-${i}">
-      <span class="reward-type">${r.type === 'final' ? '🏆 FINAL REWARD' : '🎁 MILESTONE REWARD'}</span>
-      <div class="reward-reveal-container">
-        <span class="reward-barcode" id="barcode-${i}" style="display:none; font-family:monospace; background:#eee; padding:5px; border-radius:4px; font-weight:bold; margin:5px 0; text-align:center;">${r.barcode}</span>
-        <button class="redeem-btn" id="redeem-${i}" onclick="redeemReward('${i}')" style="background:var(--ikea-blue); color:white; border:none; padding:8px; border-radius:4px; width:100%; font-weight:bold; cursor:pointer;">REDEEM</button>
+  if (noMsg) noMsg.style.display = 'none';
+  if (grid) {
+    grid.innerHTML = rewards.map((r, i) => `
+      <div class="reward-qr-item">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${r.barcode}" alt="QR">
+        <span>${r.barcode}</span>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 };
 
 window.redeemReward = (index) => {
@@ -269,4 +294,8 @@ window.onload = () => {
   setupPanelToggle();
   setupSideMenu();
   setupRegistration();
+  
+  $('milestone-close').onclick = () => {
+    $('milestone-overlay').classList.remove('visible');
+  };
 };
