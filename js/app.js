@@ -35,23 +35,45 @@ game.onSuccess = (roundNum, total) => {
     $('success-overlay').classList.remove('visible');
     
     // Show Milestone Popup
-    const code = `IKEA-ICE-${Math.random().toString(36).substring(7).toUpperCase()}`;
+    const rewardName = REWARD_NAMES[roundNum - 1];
+    const emoji = rewardName.split(' ').pop();
+    const code = `IKEA-${Math.random().toString(36).substring(7).toUpperCase()}`;
     const nextCount = total - roundNum;
+    
+    // Update Popup DOM
+    const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
+    const popupTitle = document.querySelector('.milestone-content h2');
+    const popupText = document.querySelector('.milestone-content p');
+    const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
+    
+    if (popupIcon) popupIcon.innerText = emoji;
+    if (popupTitle) popupTitle.innerText = 'Milestone Unlocked!';
+    if (popupText) popupText.innerText = `You won: ${rewardName}`;
+    
+    // Update Mini Map
+    if (miniDots.length > 0) {
+      miniDots.forEach((dot, index) => {
+        dot.className = 'mini-dot'; // Reset
+        if (index < roundNum - 1) dot.classList.add('done');
+        if (index === roundNum - 1) dot.classList.add('active');
+      });
+    }
     
     $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
     $('milestone-code').innerText = code;
     
     if (nextCount > 0) {
-      $('milestone-next-msg').innerText = `Unlock next ${nextCount} to win this!`;
+      $('milestone-next-msg').innerText = `Unlock next ${nextCount} to win more!`;
       $('milestone-next-msg').style.display = 'block';
     } else {
       $('milestone-next-msg').style.display = 'none';
+      if (popupTitle) popupTitle.innerText = 'Hunt Complete!';
     }
     
     $('milestone-overlay').classList.add('visible');
 
-    // Add to rewards pool for side menu
-    const newReward = { type: 'milestone', barcode: code, unlocked_at: new Date().toISOString() };
+    // Add to rewards pool
+    const newReward = { type: 'milestone', barcode: code, name: rewardName, unlocked_at: new Date().toISOString() };
     const currentRewards = game.rewards || [];
     game.rewards = [...currentRewards, newReward];
     updateMenuRewards(game.rewards);
@@ -152,8 +174,21 @@ window.showMapReward = (index) => {
   
   const popupTitle = document.querySelector('.milestone-content h2');
   const popupText = document.querySelector('.milestone-content p');
+  const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
+  const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
+  
   if (popupTitle) popupTitle.innerText = 'Your Reward';
   if (popupText) popupText.innerText = REWARD_NAMES[index];
+  if (popupIcon) popupIcon.innerText = REWARD_NAMES[index].split(' ').pop();
+  
+  // Update Mini Map
+  if (miniDots.length > 0) {
+    miniDots.forEach((dot, i) => {
+      dot.className = 'mini-dot';
+      if (i < index) dot.classList.add('done');
+      if (i === index) dot.classList.add('active');
+    });
+  }
   
   $('milestone-overlay').classList.add('visible');
 };
