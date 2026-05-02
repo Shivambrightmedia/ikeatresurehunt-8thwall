@@ -19,6 +19,7 @@ game.onClueUpdate = (clue, roundNum, total) => {
   $('clue-panel').classList.remove('collapsed');
   $('status-text').innerText = `Scanning for: ${clue.target.toUpperCase()}`;
   $('ar-status').classList.remove('found');
+  updateMenuRewards(game.rewards);
 };
 
 game.onSuccess = (roundNum, total) => {
@@ -87,25 +88,74 @@ game.onGameComplete = (name, timeTaken, rewards) => {
 };
 
 // ---- Profile / Rewards UI ----
+const REWARD_NAMES = [
+  'Ice Cream 🍦',
+  '$2 IKEA Voucher 🎫',
+  'Swedish Meatballs 🧆',
+  'IKEA Gift Card 🎁'
+];
+
 const updateMenuRewards = (rewards) => {
-  const grid = $('reward-grid');
-  const noMsg = $('no-rewards-msg');
+  const nodesContainer = $('map-nodes');
+  const nextRewardName = $('next-reward-name');
   
-  if (!rewards || rewards.length === 0) {
-    if (grid) grid.innerHTML = '';
-    if (noMsg) noMsg.style.display = 'block';
+  if (!nodesContainer) return;
+
+  const currentRound = game.round; // 0 to 4
+  const totalClues = 4;
+
+  // Render Map Nodes
+  const nodePositions = [
+    { x: 50, y: 220 }, // Node 1 (Bottom)
+    { x: 75, y: 160 }, // Node 2
+    { x: 35, y: 100 }, // Node 3
+    { x: 50, y: 30 }   // Node 4 (Top)
+  ];
+
+  nodesContainer.innerHTML = nodePositions.map((pos, i) => {
+    const isCompleted = i < currentRound;
+    const isActive = i === currentRound;
+    const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
+    const reward = rewards ? rewards[i] : null;
+    
+    return `
+      <div class="map-node ${statusClass}" 
+           style="left: ${pos.x}%; top: ${pos.y}px;" 
+           onclick="showMapReward(${i})">
+        ${isCompleted ? '✓' : (i + 1)}
+      </div>
+    `;
+  }).join('');
+
+  // Update Next Reward Preview
+  if (currentRound < totalClues) {
+    nextRewardName.innerText = `🎁 ${REWARD_NAMES[currentRound]}`;
+    $('next-reward-preview').style.display = 'block';
+  } else {
+    nextRewardName.innerText = `All rewards found! 🏆`;
+  }
+};
+
+window.showMapReward = (index) => {
+  const rewards = game.rewards || [];
+  const reward = rewards[index];
+  
+  if (!reward) {
+    alert(`Complete Clue ${index + 1} to unlock ${REWARD_NAMES[index]}!`);
     return;
   }
 
-  if (noMsg) noMsg.style.display = 'none';
-  if (grid) {
-    grid.innerHTML = rewards.map((r, i) => `
-      <div class="reward-qr-item">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${r.barcode}" alt="QR">
-        <span>${r.barcode}</span>
-      </div>
-    `).join('');
-  }
+  // Show milestone popup for this specific reward
+  $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${reward.barcode}`;
+  $('milestone-code').innerText = reward.barcode;
+  $('milestone-next-msg').style.display = 'none';
+  
+  const popupTitle = document.querySelector('.milestone-content h2');
+  const popupText = document.querySelector('.milestone-content p');
+  if (popupTitle) popupTitle.innerText = 'Your Reward';
+  if (popupText) popupText.innerText = REWARD_NAMES[index];
+  
+  $('milestone-overlay').classList.add('visible');
 };
 
 window.redeemReward = (index) => {
@@ -294,6 +344,7 @@ window.onload = () => {
   setupPanelToggle();
   setupSideMenu();
   setupRegistration();
+  updateMenuRewards([]);
   
   $('milestone-close').onclick = () => {
     $('milestone-overlay').classList.remove('visible');

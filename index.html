@@ -134,10 +134,19 @@
 
     <div class="reward-list-title">My Rewards</div>
     <div id="menu-reward-list">
-      <div class="reward-grid" id="reward-grid">
-        <!-- QR codes will be injected here -->
+      <div id="progress-map-container" class="progress-map">
+        <svg class="map-path" viewBox="0 0 100 250" preserveAspectRatio="none">
+           <path d="M 50 220 Q 80 180 50 125 T 50 30" fill="none" stroke="#bae6fd" stroke-width="6" stroke-dasharray="10 6" stroke-linecap="round" />
+        </svg>
+        <div id="map-nodes">
+          <!-- Nodes injected here -->
+        </div>
       </div>
-      <p id="no-rewards-msg" style="color: #999; font-style: italic; font-size: 0.9em;">No rewards found yet. Keep hunting!</p>
+      
+      <div id="next-reward-preview" style="margin-top: 15px; padding: 12px; background: #fffde7; border-radius: 8px; border: 1px solid #fbc02d;">
+        <div style="font-size: 0.7em; color: #fbc02d; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Next Reward</div>
+        <div id="next-reward-name" style="font-size: 1em; color: #333; font-weight: bold; margin-top: 2px;">🎁 Ice Cream 🍦</div>
+      </div>
     </div>
 
     <button class="close-menu-btn" id="close-menu">Close Menu</button>
