@@ -201,28 +201,32 @@
 
   <!-- Milestone Reward Pop-up -->
   <div id="milestone-overlay">
-    <div class="milestone-content">
-      <div style="font-size: 40px; margin-bottom: 10px;">🍦</div>
-      <h2 style="color: var(--ikea-blue); margin-top: 0;">Milestone Unlocked!</h2>
+    <div class="milestone-content" style="max-width: 90%; width: 400px; padding: 20px;">
+      <h2 id="milestone-title" style="color: var(--ikea-blue); margin-top: 0; font-size: 1.4em;">Milestone Unlocked!</h2>
+      <p id="milestone-won-text" style="font-size: 1.1em; font-weight: bold; color: #333;">You won: ...</p>
       
-      <!-- Mini Map -->
-      <div id="mini-map-popup" style="display: flex; justify-content: center; gap: 10px; margin: 15px 0;">
-        <div class="mini-dot"></div>
-        <div class="mini-dot"></div>
-        <div class="mini-dot"></div>
-        <div class="mini-dot"></div>
+      <div style="display: flex; align-items: stretch; justify-content: space-between; gap: 15px; margin: 15px 0;">
+        <!-- Left: Map -->
+        <div id="popup-map-container" class="progress-map" style="flex: 1; height: 180px; border-radius: 8px;">
+          <svg class="map-path" viewBox="0 0 100 180" preserveAspectRatio="none">
+             <path d="M 50 160 Q 80 120 50 80 T 50 20" fill="none" stroke="#bae6fd" stroke-width="6" stroke-dasharray="10 6" stroke-linecap="round" />
+          </svg>
+          <div id="popup-map-nodes">
+            <!-- Nodes injected here -->
+          </div>
+        </div>
+
+        <!-- Right: Small QR -->
+        <div class="qr-container" style="flex: 0 0 auto; margin: 0; padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 100px;">
+          <div id="milestone-emoji" style="font-size: 30px; margin-bottom: 5px;">🍦</div>
+          <img id="milestone-qr" src="" alt="QR Code" style="width: 80px; height: 80px;">
+          <p style="font-size: 0.6em; color: #666; margin-top: 5px; word-break: break-all;">CODE:<br><span id="milestone-code" style="font-weight:bold;">...</span></p>
+        </div>
       </div>
 
-      <p style="font-size: 1.1em; font-weight: bold; color: #333;">You won: ...</p>
+      <p id="milestone-next-msg" style="color: var(--ikea-blue); font-weight: bold; margin-top: 10px; font-size: 0.9em;">Unlock next 3 to win this!</p>
 
-      <div class="qr-container">
-        <img id="milestone-qr" src="" alt="QR Code">
-        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">CODE: <span id="milestone-code">...</span></p>
-      </div>
-
-      <p id="milestone-next-msg" style="color: var(--ikea-blue); font-weight: bold; margin-top: 20px;">Unlock next 3 to win this!</p>
-
-      <button class="ok-btn" id="milestone-close">COOL!</button>
+      <button class="ok-btn" id="milestone-close" style="margin-top: 10px;">COOL!</button>
     </div>
   </div>
 

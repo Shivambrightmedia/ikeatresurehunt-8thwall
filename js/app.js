@@ -41,33 +41,36 @@ game.onSuccess = (roundNum, total) => {
     const nextCount = total - roundNum;
 
     // Update Popup DOM
-    const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
-    const popupTitle = document.querySelector('.milestone-content h2');
-    const popupText = document.querySelector('.milestone-content p');
-    const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
-
-    if (popupIcon) popupIcon.innerText = emoji;
-    if (popupTitle) popupTitle.innerText = 'Milestone Unlocked!';
-    if (popupText) popupText.innerText = `You won: ${rewardName}`;
-
-    // Update Mini Map
-    if (miniDots.length > 0) {
-      miniDots.forEach((dot, index) => {
-        dot.className = 'mini-dot'; // Reset
-        if (index < roundNum - 1) dot.classList.add('done');
-        if (index === roundNum - 1) dot.classList.add('active');
-      });
-    }
-
+    $('milestone-emoji').innerText = emoji;
+    $('milestone-title').innerText = 'Milestone Unlocked!';
+    $('milestone-won-text').innerText = `You won: ${rewardName}`;
     $('milestone-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}`;
     $('milestone-code').innerText = code;
 
+    // Render Popup Map
+    const popupNodes = $('popup-map-nodes');
+    if (popupNodes) {
+      const pos = [{x:50,y:160},{x:80,y:115},{x:30,y:70},{x:50,y:20}];
+      popupNodes.innerHTML = pos.map((p, i) => {
+        const isCompleted = i < roundNum - 1;
+        const isActive = i === roundNum - 1;
+        const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
+        return `
+          <div style="position: absolute; left: ${p.x}%; top: ${p.y}px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
+            <div class="map-node ${statusClass}" style="position: relative; left: 0; top: 0; transform: none; cursor: default;">
+              ${isCompleted ? '✓' : (i + 1)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     if (nextCount > 0) {
-      $('milestone-next-msg').innerText = `Unlock next ${nextCount} to win more!`;
+      $('milestone-next-msg').innerText = `Unlock next 1 to win: ${REWARD_NAMES[roundNum]}`;
       $('milestone-next-msg').style.display = 'block';
     } else {
       $('milestone-next-msg').style.display = 'none';
-      if (popupTitle) popupTitle.innerText = 'Hunt Complete!';
+      $('milestone-title').innerText = 'Hunt Complete!';
     }
 
     $('milestone-overlay').classList.add('visible');
@@ -175,22 +178,20 @@ window.showMapReward = (index) => {
   $('milestone-code').innerText = reward.barcode;
   $('milestone-next-msg').style.display = 'none';
 
-  const popupTitle = document.querySelector('.milestone-content h2');
-  const popupText = document.querySelector('.milestone-content p');
-  const popupIcon = document.querySelector('.milestone-content div[style*="font-size: 40px"]');
-  const miniDots = document.querySelectorAll('#mini-map-popup .mini-dot');
+  $('milestone-title').innerText = 'Your Reward';
+  $('milestone-won-text').innerText = REWARD_NAMES[index];
+  $('milestone-emoji').innerText = REWARD_NAMES[index].split(' ').pop();
 
-  if (popupTitle) popupTitle.innerText = 'Your Reward';
-  if (popupText) popupText.innerText = REWARD_NAMES[index];
-  if (popupIcon) popupIcon.innerText = REWARD_NAMES[index].split(' ').pop();
-
-  // Update Mini Map
-  if (miniDots.length > 0) {
-    miniDots.forEach((dot, i) => {
-      dot.className = 'mini-dot';
-      if (i < index) dot.classList.add('done');
-      if (i === index) dot.classList.add('active');
-    });
+  // Render Popup Map
+  const popupNodes = $('popup-map-nodes');
+  if (popupNodes) {
+    const pos = [{x:50,y:160},{x:80,y:115},{x:30,y:70},{x:50,y:20}];
+    popupNodes.innerHTML = pos.map((p, i) => {
+      const isCompleted = i < index;
+      const isActive = i === index;
+      const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
+      return `<div class="map-node ${statusClass}" style="left: ${p.x}%; top: ${p.y}px; cursor: default;">${isCompleted ? '✓' : (i + 1)}</div>`;
+    }).join('');
   }
 
   $('milestone-overlay').classList.add('visible');
