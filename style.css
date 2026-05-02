@@ -582,3 +582,18 @@ body {
   margin-top: 15px;
   border: none;
 }
+
+/* Terms Layout 80% */
+.reg-container.terms-layout {
+  height: 80%;
+  width: 90%;
+  max-width: 500px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.reg-container.terms-layout #step-terms {
+  flex: 1;
+  height: 100%;
+}

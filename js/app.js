@@ -180,6 +180,14 @@ const setupRegistration = () => {
   const goToStep = (step) => {
     document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
     $(`step-${step}`).classList.add('active');
+
+    // Toggle terms-specific layout
+    const container = document.querySelector('.reg-container');
+    if (step === 'terms') {
+      container.classList.add('terms-layout');
+    } else {
+      container.classList.remove('terms-layout');
+    }
   };
 
   $('btn-is-member').onclick = () => goToStep(2);
