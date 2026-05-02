@@ -50,14 +50,14 @@ game.onSuccess = (roundNum, total) => {
     // Render Popup Map
     const popupNodes = $('popup-map-nodes');
     if (popupNodes) {
-      const pos = [{x:50,y:160},{x:80,y:115},{x:30,y:70},{x:50,y:20}];
+      const pos = [{ x: 50, y: 170 }, { x: 85, y: 110 }, { x: 15, y: 110 }, { x: 50, y: 50 }];
       popupNodes.innerHTML = pos.map((p, i) => {
         const isCompleted = i < roundNum - 1;
         const isActive = i === roundNum - 1;
         const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
         return `
           <div style="position: absolute; left: ${p.x}%; top: ${p.y}px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
-            <div class="map-node ${statusClass}" style="position: relative; left: 0; top: 0; transform: none; cursor: default;">
+            <div class="map-node ${statusClass}" style="position: relative; left: 0; top: 0; transform: none; cursor: default; width: 40px; height: 40px; line-height: 40px; font-size: 1.2em; border-width: 4px;">
               ${isCompleted ? '✓' : (i + 1)}
             </div>
           </div>
@@ -66,11 +66,17 @@ game.onSuccess = (roundNum, total) => {
     }
 
     if (nextCount > 0) {
-      $('milestone-next-msg').innerText = `Unlock next 1 to win: ${REWARD_NAMES[roundNum]}`;
+      const nextName = REWARD_NAMES[roundNum];
+      const nextEmoji = nextName.split(' ').pop();
+      $('milestone-next-emoji').innerText = nextEmoji;
+      $('milestone-next-name').innerText = nextName;
+      $('milestone-next-msg').innerHTML = `Unlock next 1 to win:<br>${nextName}`;
+      $('milestone-next-box').style.display = 'flex';
       $('milestone-next-msg').style.display = 'block';
     } else {
+      $('milestone-next-box').style.display = 'none';
       $('milestone-next-msg').style.display = 'none';
-      $('milestone-title').innerText = 'Hunt Complete!';
+      $('milestone-title').innerText = 'Hunt Complete! 🎉';
     }
 
     $('milestone-overlay').classList.add('visible');
@@ -185,14 +191,24 @@ window.showMapReward = (index) => {
   // Render Popup Map
   const popupNodes = $('popup-map-nodes');
   if (popupNodes) {
-    const pos = [{x:50,y:160},{x:80,y:115},{x:30,y:70},{x:50,y:20}];
+    const pos = [{ x: 50, y: 170 }, { x: 85, y: 110 }, { x: 15, y: 110 }, { x: 50, y: 50 }];
     popupNodes.innerHTML = pos.map((p, i) => {
       const isCompleted = i < index;
       const isActive = i === index;
       const statusClass = isCompleted ? 'completed' : (isActive ? 'active' : '');
-      return `<div class="map-node ${statusClass}" style="left: ${p.x}%; top: ${p.y}px; cursor: default;">${isCompleted ? '✓' : (i + 1)}</div>`;
+      return `
+        <div style="position: absolute; left: ${p.x}%; top: ${p.y}px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;">
+          <div class="map-node ${statusClass}" style="position: relative; left: 0; top: 0; transform: none; cursor: default; width: 40px; height: 40px; line-height: 40px; font-size: 1.2em; border-width: 4px;">
+            ${isCompleted ? '✓' : (i + 1)}
+          </div>
+        </div>
+      `;
     }).join('');
   }
+
+  // When clicking a node from dashboard, hide "next reward"
+  $('milestone-next-box').style.display = 'none';
+  $('milestone-next-msg').style.display = 'none';
 
   $('milestone-overlay').classList.add('visible');
 };
