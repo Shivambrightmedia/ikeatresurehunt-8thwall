@@ -450,6 +450,35 @@ function dataURLToBase64(dataUrl) {
   return dataUrl.split(',')[1];
 }
 
+// Upload image to Cloudinary
+async function uploadToCloudinary(dataUrl, filename) {
+  const CLOUD_NAME = 'derb7wswl';
+  const UPLOAD_PRESET = 'unsigned_preset'; // Configure this in Cloudinary dashboard for unsigned uploads
+  const FOLDER = 'ikeaimages';
+
+  const formData = new FormData();
+  formData.append('file', dataUrl);
+  formData.append('upload_preset', UPLOAD_PRESET);
+  formData.append('folder', FOLDER);
+  formData.append('public_id', filename);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    {
+      method: 'POST',
+      body: formData
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Cloudinary upload error: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
 // Load target image as base64
 async function loadTargetImage(imagePath) {
   const response = await fetch(imagePath);
@@ -578,6 +607,15 @@ async function handleScan() {
 
     // Capture frames
     const capturedFrames = captureFrames(2);
+
+    // Upload captured frames to Cloudinary
+    const timestamp = Date.now();
+    const uploadPromises = capturedFrames.map((frame, index) => {
+      const filename = `${currentTarget}_${timestamp}_${index}.jpg`;
+      return uploadToCloudinary(frame, filename);
+    });
+    const uploadedUrls = await Promise.all(uploadPromises);
+    console.log('Uploaded to Cloudinary:', uploadedUrls);
 
     // Load target image
     const targetImageBase64 = await loadTargetImage(targetConfig.path);
