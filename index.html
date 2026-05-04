@@ -23,12 +23,19 @@
   <canvas id="canvas" style="display: none;"></canvas>
   
   <!-- Scan Button -->
-  <button id="scanBtn" style="position: fixed; bottom: 55%; left: 50%; transform: translateX(-50%); z-index: 1600; padding: 15px 40px; background: var(--ikea-yellow); color: var(--ikea-blue); border: none; border-radius: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">SCAN</button>
+  <button id="scanBtn" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 1600; padding: 15px 40px; background: var(--ikea-yellow); color: var(--ikea-blue); border: none; border-radius: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">SCAN</button>
   
   <!-- Loading Indicator -->
   <div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(0,0,0,0.8); color: white; padding: 20px 40px; border-radius: 10px; display: none; text-align: center;">
-    <div style="font-size: 2em;">🔍</div>
+    <div style="font-size: 2em; animation: spin 1s linear infinite;">🔍</div>
   </div>
+  
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
   
   <!-- Scan Result -->
   <div id="result" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(220, 53, 69, 0.9); color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 1.2em; text-align: center; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
