@@ -429,32 +429,16 @@ async function initCamera() {
   }
 }
 
-// Capture frames from camera with resizing
+// Capture frames from camera
 function captureFrames(count = 2) {
   const frames = [];
   const canvas = $('canvas');
   const video = $('video');
-  
-  // Calculate scaled dimensions (max 1024px)
-  const maxDimension = 1024;
-  let width = video.videoWidth;
-  let height = video.videoHeight;
-  
-  if (width > maxDimension || height > maxDimension) {
-    if (width > height) {
-      height = Math.round((height * maxDimension) / width);
-      width = maxDimension;
-    } else {
-      width = Math.round((width * maxDimension) / height);
-      height = maxDimension;
-    }
-  }
-  
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
 
   for (let i = 0; i < count; i++) {
-    canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+    canvas.getContext('2d').drawImage(video, 0, 0);
     frames.push(canvas.toDataURL('image/jpeg', 0.8));
   }
 
