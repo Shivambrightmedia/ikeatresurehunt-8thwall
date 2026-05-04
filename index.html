@@ -23,16 +23,29 @@
   <canvas id="canvas" style="display: none;"></canvas>
   
   <!-- Loading Indicator -->
-  <div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(0,0,0,0.8); color: white; padding: 20px 40px; border-radius: 10px; display: none; text-align: center;">
-    <div style="font-size: 2em; animation: spin 1s linear infinite;">🔍</div>
+  <div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(0,0,0,0.8); color: white; padding: 25px; border-radius: 15px; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+    <svg width="45" height="45" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .ios-spinner { animation: ios-spin 1s steps(12, end) infinite; }
+        @keyframes ios-spin { 100% { transform: rotate(360deg); } }
+        .ios-line { stroke: white; stroke-width: 2.5; stroke-linecap: round; }
+      </style>
+      <g class="ios-spinner" style="transform-origin: 12px 12px;">
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" opacity="1" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(30 12 12)" opacity="0.91" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(60 12 12)" opacity="0.83" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(90 12 12)" opacity="0.75" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(120 12 12)" opacity="0.66" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(150 12 12)" opacity="0.58" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(180 12 12)" opacity="0.5" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(210 12 12)" opacity="0.41" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(240 12 12)" opacity="0.33" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(270 12 12)" opacity="0.25" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(300 12 12)" opacity="0.16" />
+        <line class="ios-line" x1="12" y1="2" x2="12" y2="6" transform="rotate(330 12 12)" opacity="0.08" />
+      </g>
+    </svg>
   </div>
-  
-  <style>
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  </style>
   
   <!-- Scan Result -->
   <div id="result" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(220, 53, 69, 0.9); color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 1.2em; text-align: center; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
