@@ -453,7 +453,7 @@ function dataURLToBase64(dataUrl) {
 // Upload image to Cloudinary
 async function uploadToCloudinary(dataUrl, filename) {
   const CLOUD_NAME = 'derb7wswl';
-  const UPLOAD_PRESET = 'unsigned_preset'; // Configure this in Cloudinary dashboard for unsigned uploads
+  const UPLOAD_PRESET = 'ikeaimages';
   const FOLDER = 'ikeaimages';
 
   const formData = new FormData();
