@@ -67,14 +67,9 @@ game.onSuccess = (roundNum, total) => {
 
     if (nextCount > 0) {
       const nextName = REWARD_NAMES[roundNum];
-      const nextEmoji = nextName.split(' ').pop();
-      $('milestone-next-emoji').innerText = nextEmoji;
-      $('milestone-next-name').innerText = nextName;
       $('milestone-next-msg').innerHTML = `Unlock next 1 to win:<br>${nextName}`;
-      $('milestone-next-box').style.display = 'flex';
       $('milestone-next-msg').style.display = 'block';
     } else {
-      $('milestone-next-box').style.display = 'none';
       $('milestone-next-msg').style.display = 'none';
       $('milestone-title').innerText = 'Hunt Complete! 🎉';
     }
@@ -121,7 +116,7 @@ game.onGameComplete = (name, timeTaken, rewards) => {
 // ---- Profile / Rewards UI ----
 const REWARD_NAMES = [
   'Ice Cream 🍦',
-  '$2 IKEA Voucher 🎫',
+  '₹200 IKEA Voucher 🎫',
   'Swedish Meatballs 🧆',
   'IKEA Gift Card 🎁'
 ];
@@ -207,7 +202,6 @@ window.showMapReward = (index) => {
   }
 
   // When clicking a node from dashboard, hide "next reward"
-  $('milestone-next-box').style.display = 'none';
   $('milestone-next-msg').style.display = 'none';
 
   $('milestone-overlay').classList.add('visible');
