@@ -254,7 +254,8 @@ const setupSideMenu = () => {
   $('close-menu').onclick = toggleMenu;
 };
 
-// ---- Pipeline Module ----
+// ---- Pipeline Module (8th Wall - COMMENTED OUT FOR GEMINI-BASED SYSTEM) ----
+/*
 const imageTargetPipelineModule = () => {
   const meshes = {};
   const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
@@ -297,6 +298,7 @@ const imageTargetPipelineModule = () => {
     ],
   };
 };
+*/
 
 // ---- Registration ----
 const setupRegistration = () => {
@@ -366,13 +368,15 @@ const setupRegistration = () => {
     $('menu-player-name').innerText = name;
     $('menu-player-phone').innerText = phone;
 
-    // Start Game & AR
+    // Start Game & Camera (Gemini-based)
     await game.start(name, phone);
-    startAR();
+    initCamera(); // Initialize camera instead of 8th Wall AR
+    $('scanBtn').style.display = 'block'; // Show scan button
   };
 };
 
-// ---- 8th Wall Boot ----
+// ---- 8th Wall Boot (COMMENTED OUT FOR GEMINI-BASED SYSTEM) ----
+/*
 const startAR = () => {
   const onxrloaded = async () => {
     const jsonFiles = ['image-targets/ikeaclock.json', 'image-targets/iglu.json', 'image-targets/studytablemat.json', 'image-targets/tigerpilow.json'];
@@ -399,6 +403,215 @@ const startAR = () => {
       window.XRExtras ? onxrloaded() : window.addEventListener('xrextrasloaded', onxrloaded);
     });
 };
+*/
+
+// ---- Gemini-based Camera & Image Comparison ----
+let stream = null;
+
+// Target image paths mapping
+const TARGET_IMAGES = {
+  'ikeaclock': { path: 'image-targets/ikeaclock_original.jpg', name: 'IKEA Clock' },
+  'iglu': { path: 'image-targets/iglu_original.jpg', name: 'Igloo' },
+  'studytablemat': { path: 'image-targets/studytablemat_original.jpg', name: 'Study Table Mat' },
+  'tigerpilow': { path: 'image-targets/tigerpilow_original.jpg', name: 'Tiger Pillow' }
+};
+
+// Initialize camera
+async function initCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    $('video').srcObject = stream;
+  } catch (err) {
+    console.error('Camera access error:', err);
+    alert('Unable to access camera. Please allow camera permissions.');
+  }
+}
+
+// Capture frames from camera
+function captureFrames(count = 2) {
+  const frames = [];
+  const canvas = $('canvas');
+  const video = $('video');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  for (let i = 0; i < count; i++) {
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    frames.push(canvas.toDataURL('image/jpeg', 0.8));
+  }
+
+  return frames;
+}
+
+// Convert data URL to base64 without prefix
+function dataURLToBase64(dataUrl) {
+  return dataUrl.split(',')[1];
+}
+
+// Load target image as base64
+async function loadTargetImage(imagePath) {
+  const response = await fetch(imagePath);
+  if (!response.ok) {
+    throw new Error(`Failed to load image: ${imagePath} (${response.status})`);
+  }
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(dataURLToBase64(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Send images to Gemini API
+async function scanWithGemini(capturedFrames, targetImageBase64, targetName) {
+  const prompt = `You are an object recognition system for an AR treasure hunt. 
+The FIRST image provided is the TARGET IMAGE.
+The SUBSEQUENT images are captured camera frames.
+Compare the TARGET IMAGE to the captured camera frames. Does the object in the TARGET IMAGE appear in the frames?
+Target object name (for context only): ${targetName}
+
+Return ONLY valid JSON in this exact format:
+{
+    "confidence": 0.0,
+    "decision": "found" | "maybe" | "not_found",
+    "reason": "short reason"
+}
+
+Confidence should be between 0.0 and 1.0.
+- confidence >= 0.85: decision = "found"
+- confidence >= 0.70 and < 0.85: decision = "maybe"
+- confidence < 0.70: decision = "not_found"`;
+
+  const imageParts = [
+    { inlineData: { mimeType: "image/jpeg", data: targetImageBase64 } }
+  ];
+
+  capturedFrames.forEach(frame => {
+    imageParts.push({
+      inlineData: { mimeType: "image/jpeg", data: dataURLToBase64(frame) }
+    });
+  });
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            ...imageParts
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: "application/json"
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API Error Response:', errorText);
+    throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  
+  // Log token usage live
+  if (data.usageMetadata) {
+    console.log(`Tokens used -> Input: ${data.usageMetadata.promptTokenCount} | Output: ${data.usageMetadata.candidatesTokenCount} | Total: ${data.usageMetadata.totalTokenCount}`);
+  }
+
+  const text = data.candidates[0].content.parts[0].text;
+
+  try {
+    return JSON.parse(text);
+  } catch (parseError) {
+    console.error("Failed to parse JSON directly, raw text:", text);
+    // Extract JSON from response as fallback
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON in response. Raw response: ' + text);
+    }
+    return JSON.parse(jsonMatch[0]);
+  }
+}
+
+// Update UI based on scan result
+function updateResult(scanResult) {
+  const result = $('result');
+  const resultText = $('resultText');
+  const resultReason = $('resultReason');
+  
+  result.classList.remove('hidden', 'found', 'maybe', 'not_found');
+  result.style.display = 'block';
+
+  if (scanResult.confidence >= 0.85) {
+    resultText.style.color = '#28a745';
+    resultText.textContent = 'Target Found!';
+  } else if (scanResult.confidence >= 0.70) {
+    resultText.style.color = '#ffc107';
+    resultText.textContent = 'Maybe Match, Try Again';
+  } else {
+    resultText.style.color = '#dc3545';
+    resultText.textContent = 'Not Found';
+  }
+
+  resultReason.textContent = scanResult.reason;
+}
+
+// Handle scan button click
+async function handleScan() {
+  try {
+    // Show loading
+    $('loading').style.display = 'block';
+    $('result').style.display = 'none';
+    $('scanBtn').disabled = true;
+
+    // Get current target from game
+    const currentTarget = game.getCurrentTarget();
+    if (!currentTarget) {
+      throw new Error('No active target to scan');
+    }
+
+    const targetConfig = TARGET_IMAGES[currentTarget];
+    if (!targetConfig) {
+      throw new Error(`Target config not found for: ${currentTarget}`);
+    }
+
+    // Capture frames
+    const capturedFrames = captureFrames(2);
+
+    // Load target image
+    const targetImageBase64 = await loadTargetImage(targetConfig.path);
+
+    // Send to Gemini
+    const scanResult = await scanWithGemini(capturedFrames, targetImageBase64, targetConfig.name);
+
+    // Update UI
+    updateResult(scanResult);
+
+    // If found, trigger game success
+    if (scanResult.confidence >= 0.85) {
+      await game.handleTargetFound(currentTarget);
+    }
+
+  } catch (err) {
+    console.error('Scan error:', err);
+    alert('Scan failed: ' + err.message);
+  } finally {
+    $('loading').style.display = 'none';
+    $('scanBtn').disabled = false;
+  }
+}
 
 // ---- Init ----
 window.onload = () => {
@@ -410,4 +623,7 @@ window.onload = () => {
   $('milestone-close').onclick = () => {
     $('milestone-overlay').classList.remove('visible');
   };
+
+  // Connect scan button to handler
+  $('scanBtn').onclick = handleScan;
 };

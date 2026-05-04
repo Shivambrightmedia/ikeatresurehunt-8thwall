@@ -6,20 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
   <title>IKEA AR Treasure Hunt | Powered by 8th Wall</title>
 
-  <!-- 8th Wall Engine (Self-Hosted) -->
-  <script async src="xr.js" data-preload-chunks="slam"></script>
-  <script src="https://cdn.8thwall.com/web/xrextras/xrextras.js"></script>
+  <!-- 8th Wall Engine (Self-Hosted) - COMMENTED OUT FOR GEMINI-BASED SYSTEM -->
+  <!-- <script async src="xr.js" data-preload-chunks="slam"></script> -->
+  <!-- <script src="https://cdn.8thwall.com/web/xrextras/xrextras.js"></script> -->
 
   <!-- Dependencies -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.min.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <!-- Camera Feed -->
-  <canvas id="camerafeed"></canvas>
+  <!-- Camera Feed (Gemini-based) -->
+  <video id="video" autoplay playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;"></video>
+  <canvas id="canvas" style="display: none;"></canvas>
+  
+  <!-- Scan Button -->
+  <button id="scanBtn" style="position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 1500; padding: 15px 40px; background: var(--ikea-blue); color: var(--ikea-yellow); border: none; border-radius: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none;">📷 SCAN TARGET</button>
+  
+  <!-- Loading Indicator -->
+  <div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: rgba(0,0,0,0.8); color: white; padding: 20px 40px; border-radius: 10px; display: none; text-align: center;">
+    <div style="font-size: 2em; margin-bottom: 10px;">🔍</div>
+    <div>Analyzing with Gemini...</div>
+  </div>
+  
+  <!-- Scan Result -->
+  <div id="result" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1600; background: white; padding: 30px; border-radius: 15px; text-align: center; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 90%; width: 350px;">
+    <div id="resultText" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px;"></div>
+    <div id="resultReason" style="color: #666; font-size: 0.9em;"></div>
+    <button onclick="document.getElementById('result').style.display='none'" style="margin-top: 15px; padding: 10px 25px; background: var(--ikea-blue); color: white; border: none; border-radius: 20px; cursor: pointer;">Close</button>
+  </div>
 
   <!-- Registration Overlay -->
   <div id="registration-overlay">
