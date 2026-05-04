@@ -547,25 +547,13 @@ Confidence should be between 0.0 and 1.0.
 
 // Update UI based on scan result
 function updateResult(scanResult) {
-  const result = $('result');
-  const resultText = $('resultText');
-  const resultReason = $('resultReason');
-  
-  result.classList.remove('hidden', 'found', 'maybe', 'not_found');
-  result.style.display = 'block';
-
-  if (scanResult.confidence >= 0.85) {
-    resultText.style.color = '#28a745';
-    resultText.textContent = 'Target Found!';
-  } else if (scanResult.confidence >= 0.70) {
-    resultText.style.color = '#ffc107';
-    resultText.textContent = 'Maybe Match, Try Again';
-  } else {
-    resultText.style.color = '#dc3545';
-    resultText.textContent = 'Not Found';
+  if (scanResult.confidence < 0.85) {
+    const result = $('result');
+    result.style.display = 'block';
+    setTimeout(() => {
+      result.style.display = 'none';
+    }, 5000);
   }
-
-  resultReason.textContent = scanResult.reason;
 }
 
 // Handle scan button click
