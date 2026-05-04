@@ -510,9 +510,9 @@ Return ONLY valid JSON in this exact format:
 }
 
 Confidence should be between 0.0 and 1.0.
-- confidence >= 0.75: decision = "found"
-- confidence >= 0.70 and < 0.85: decision = "maybe"
-- confidence < 0.70: decision = "not_found"`;
+- confidence >= 0.70: decision = "found"
+- confidence >= 0.60 and < 0.70: decision = "maybe"
+- confidence < 0.60: decision = "not_found"`;
 
   const imageParts = [
     { inlineData: { mimeType: "image/jpeg", data: targetImageBase64 } }
@@ -553,7 +553,7 @@ Confidence should be between 0.0 and 1.0.
   }
 
   const data = await response.json();
-  
+
   // Log token usage live
   if (data.usageMetadata) {
     console.log(`Tokens used -> Input: ${data.usageMetadata.promptTokenCount} | Output: ${data.usageMetadata.candidatesTokenCount} | Total: ${data.usageMetadata.totalTokenCount}`);
@@ -576,8 +576,19 @@ Confidence should be between 0.0 and 1.0.
 
 // Update UI based on scan result
 function updateResult(scanResult) {
-  if (scanResult.confidence < 0.85) {
-    const result = $('result');
+  const result = $('result');
+  if (scanResult.confidence >= 0.60 && scanResult.confidence < 0.70) {
+    result.textContent = 'Scan again with proper angle';
+    result.style.background = 'rgba(255, 193, 7, 0.9)';
+    result.style.color = 'black';
+    result.style.display = 'block';
+    setTimeout(() => {
+      result.style.display = 'none';
+    }, 5000);
+  } else if (scanResult.confidence < 0.60) {
+    result.textContent = 'Not Found';
+    result.style.background = 'rgba(220, 53, 69, 0.9)';
+    result.style.color = 'white';
     result.style.display = 'block';
     setTimeout(() => {
       result.style.display = 'none';
@@ -627,7 +638,7 @@ async function handleScan() {
     updateResult(scanResult);
 
     // If found, trigger game success
-    if (scanResult.confidence >= 0.85) {
+    if (scanResult.confidence >= 0.70) {
       await game.handleTargetFound(currentTarget);
     }
 
