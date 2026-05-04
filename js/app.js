@@ -481,7 +481,7 @@ Return ONLY valid JSON in this exact format:
 }
 
 Confidence should be between 0.0 and 1.0.
-- confidence >= 0.85: decision = "found"
+- confidence >= 0.75: decision = "found"
 - confidence >= 0.70 and < 0.85: decision = "maybe"
 - confidence < 0.70: decision = "not_found"`;
 
