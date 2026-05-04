@@ -559,8 +559,9 @@ function updateResult(scanResult) {
 // Handle scan button click
 async function handleScan() {
   try {
-    // Show loading
+    // Show loading, hide scan button
     $('loading').style.display = 'block';
+    $('scanBtn').style.display = 'none';
     $('result').style.display = 'none';
     $('scanBtn').disabled = true;
 
@@ -597,6 +598,7 @@ async function handleScan() {
     alert('Scan failed: ' + err.message);
   } finally {
     $('loading').style.display = 'none';
+    $('scanBtn').style.display = 'block';
     $('scanBtn').disabled = false;
   }
 }
